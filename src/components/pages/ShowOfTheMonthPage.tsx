@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Container, Grid } from "@radix-ui/themes";
 import { motion } from "framer-motion";
 import { useData } from "@/contexts/DataContext";
@@ -6,7 +5,7 @@ import { LoadingSpinner } from "../LoadingSpinner";
 import { Title } from "../ui/styled";
 import { itemVariants } from "@/lib/styled-variants";
 import { format } from "date-fns";
-import { getImageUrlById, SimpleItemDto } from "@/lib/queries";
+import { SimpleItemDto } from "@/lib/queries";
 import { formatWatchTime } from "@/lib/time-helpers";
 import PageContainer from "../PageContainer";
 import { styled } from "@stitches/react";
@@ -19,45 +18,19 @@ type MonthlyShowStats = {
     watchTimeMinutes: number;
   };
   totalWatchTimeMinutes: number;
-  posterUrl?: string;
 };
 
 export default function ShowOfTheMonthPage() {
   const { monthlyShowStats, isLoading } = useData();
   const { data: stats } = monthlyShowStats;
-  const [statsWithPosters, setStatsWithPosters] = useState<MonthlyShowStats[]>(
-    []
-  );
 
-  useEffect(() => {
-    if (!stats) return;
-
-    const fetchPosters = async () => {
-      const withPosters = await Promise.all(
-        stats.map(async (stat: MonthlyShowStats) => {
-          const posterUrl = stat.topShow.item.id
-            ? await getImageUrlById(stat.topShow.item.id)
-            : undefined;
-          return { ...stat, posterUrl };
-        })
-      );
-      setStatsWithPosters(withPosters);
-    };
-
-    void fetchPosters();
-  }, [stats]);
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  if (!statsWithPosters.length) {
+  if (isLoading || !stats?.length) {
     return <LoadingSpinner />;
   }
 
   // Sort by month in chronological order (oldest first)
-  const sortedStats = [...statsWithPosters].sort(
-    (a, b) => a.month.getTime() - b.month.getTime()
+  const sortedStats = [...stats].sort(
+    (a: MonthlyShowStats, b: MonthlyShowStats) => a.month.getTime() - b.month.getTime()
   );
 
   return (
@@ -82,9 +55,9 @@ export default function ShowOfTheMonthPage() {
                 transition={{ duration: 0.2 }}
               >
                 <ImageContainer>
-                  {stat.posterUrl ? (
+                  {stat.topShow.item.imageUrl ? (
                     <PosterImage
-                      src={stat.posterUrl}
+                      src={stat.topShow.item.imageUrl}
                       alt={stat.topShow.item.name ?? ""}
                     />
                   ) : (

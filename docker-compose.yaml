@@ -48,7 +48,5 @@ services:
       #   - http://your-server-ip:3001 (if accessing over network)
       #   - https://api.yourdomain.com (if using reverse proxy with HTTPS)
       - BACKEND_URL=http://localhost:3001
-      # Required: Your Jellyfin server URL (as accessible from the browser, for images)
-      - JELLYFIN_SERVER_URL=http://<your_jellyfin_server>:8096
     depends_on:
       - backend

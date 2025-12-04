@@ -37,6 +37,7 @@ export interface SimpleItemDto {
   genres?: string[] | null;
   genreItems?: { Name?: string; Id?: string }[] | null;
   durationSeconds?: number;
+  imageUrl?: string | null;
 }
 
 export interface PersonDto {
@@ -45,6 +46,7 @@ export interface PersonDto {
   Role?: string;
   Type?: string;
   PrimaryImageTag?: string;
+  imageUrl?: string | null;
 }
 
 // Movie with playback stats

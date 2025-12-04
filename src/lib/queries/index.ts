@@ -4,9 +4,6 @@ export * from "./types";
 // Utils
 export * from "./utils";
 
-// Images
-export * from "./images";
-
 // Movies
 export * from "./movies";
 
