@@ -91,10 +91,14 @@ export async function getItemsByIds(
       date: item.PremiereDate,
       communityRating: item.CommunityRating,
       productionYear: item.ProductionYear,
-      people: item.People,
+      people: item.People?.map((person) => ({
+        ...person,
+        imageUrl: person.Id ? `${config.serverUrl}/Items/${person.Id}/Images/Primary?maxWidth=300&quality=90` : null,
+      })),
       genres: item.Genres,
       genreItems: item.GenreItems,
       durationSeconds: item.RunTimeTicks ? Math.floor(item.RunTimeTicks / 10000000) : 0,
+      imageUrl: item.Id ? `${config.serverUrl}/Items/${item.Id}/Images/Primary?maxWidth=300&quality=90` : null,
     }));
 
     allItems.push(...items);

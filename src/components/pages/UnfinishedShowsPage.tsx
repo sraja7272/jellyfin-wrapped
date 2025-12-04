@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Container, Grid } from "@radix-ui/themes";
 import { motion } from "framer-motion";
 import { useData } from "@/contexts/DataContext";
@@ -6,43 +5,16 @@ import { LoadingSpinner } from "../LoadingSpinner";
 import { Title } from "../ui/styled";
 import { itemVariants } from "@/lib/styled-variants";
 import { format } from "date-fns";
-import { getImageUrlById, UnfinishedShowDto } from "@/lib/queries";
+import { UnfinishedShowDto } from "@/lib/queries";
 import PageContainer from "../PageContainer";
 import { styled } from "@stitches/react";
 import { PlayCircle, Calendar } from "lucide-react";
 
-type ShowWithPoster = UnfinishedShowDto & { posterUrl?: string };
-
 export default function UnfinishedShowsPage() {
   const { unfinishedShows, isLoading } = useData();
   const { data: shows } = unfinishedShows;
-  const [showsWithPosters, setShowsWithPosters] = useState<ShowWithPoster[]>(
-    []
-  );
 
-  useEffect(() => {
-    if (!shows) return;
-
-    const fetchPosters = async () => {
-      const withPosters = await Promise.all(
-        shows.map(async (show: UnfinishedShowDto) => {
-          const posterUrl = show.item.id
-            ? await getImageUrlById(show.item.id)
-            : undefined;
-          return { ...show, posterUrl };
-        })
-      );
-      setShowsWithPosters(withPosters);
-    };
-
-    void fetchPosters();
-  }, [shows]);
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  if (!showsWithPosters.length) {
+  if (isLoading || !shows?.length) {
     return <LoadingSpinner />;
   }
 
@@ -60,7 +32,7 @@ export default function UnfinishedShowsPage() {
           </HeaderSection>
 
           <ContentGrid>
-            {showsWithPosters.slice(0, 12).map((show: ShowWithPoster) => {
+            {shows.slice(0, 12).map((show: UnfinishedShowDto) => {
               const progressPercent = Math.round(
                 (show.watchedEpisodes / show.totalEpisodes) * 100
               );
@@ -73,9 +45,9 @@ export default function UnfinishedShowsPage() {
                   transition={{ duration: 0.2 }}
                 >
                   <ImageContainer>
-                    {show.posterUrl ? (
+                    {show.item.imageUrl ? (
                       <PosterImage
-                        src={show.posterUrl}
+                        src={show.item.imageUrl}
                         alt={show.item.name ?? ""}
                       />
                     ) : (

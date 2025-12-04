@@ -19,8 +19,5 @@ RUN echo "Include conf/extra/apache-config.conf" \
     >> /usr/local/apache2/conf/httpd.conf
 
 # Make sure Apache can read environment variables
-# Note: JELLYFIN_API_KEY is intentionally NOT passed to frontend (security)
 RUN echo "PassEnv BACKEND_URL" \
-    >> /usr/local/apache2/conf/httpd.conf && \
-    echo "PassEnv JELLYFIN_SERVER_URL" \
     >> /usr/local/apache2/conf/httpd.conf

@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
 import { Avatar } from "@radix-ui/themes";
-import { getImageUrlById, SimpleItemDto } from "@/lib/queries";
-import { BaseItemPerson } from "@jellyfin/sdk/lib/generated-client";
+import { SimpleItemDto, PersonDto } from "@/lib/queries";
 import { styled } from "@stitches/react";
 
 interface ActorCardProps {
   name: string;
   count: number;
-  details: BaseItemPerson;
+  details: PersonDto;
   seenInMovies: SimpleItemDto[];
   seenInShows: SimpleItemDto[];
 }
@@ -19,26 +17,12 @@ export function ActorCard({
   seenInMovies,
   seenInShows,
 }: ActorCardProps) {
-  const [imageUrl, setImageUrl] = useState<string>();
-  useEffect(() => {
-    const fetchImageUrl = async () => {
-      try {
-        const url = await getImageUrlById(details.Id ?? "");
-        setImageUrl(url);
-      } catch (error) {
-        console.error("Failed to fetch image URL:", error);
-      }
-    };
-
-    void fetchImageUrl();
-  }, [details]);
-
   return (
     <CardContainer>
       <ImageContainer>
         <Avatar
           size="8"
-          src={imageUrl}
+          src={details.imageUrl ?? undefined}
           fallback={details.Name?.[0] || "?"}
           style={{
             borderRadius: 0,

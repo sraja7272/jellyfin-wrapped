@@ -1,26 +1,11 @@
-import { useEffect, useState } from "react";
-import { getImageUrlById, SimpleItemDto } from "@/lib/queries";
+import { useState } from "react";
+import { SimpleItemDto } from "@/lib/queries";
 import { styled } from "@stitches/react";
 
 export function ContentImage({ item }: { item: SimpleItemDto }) {
-  const [imageUrl, setImageUrl] = useState("");
   const [hasError, setHasError] = useState(false);
 
-  useEffect(() => {
-    const fetchImageUrl = async () => {
-      try {
-        const url = await getImageUrlById(item.id ?? "");
-        setImageUrl(url);
-      } catch (error) {
-        console.error("Failed to fetch image URL:", error);
-        setHasError(true);
-      }
-    };
-
-    void fetchImageUrl();
-  }, [item]);
-
-  if (hasError || !imageUrl) {
+  if (hasError || !item.imageUrl) {
     return (
       <FallbackContainer>
         <FallbackText>{item.name?.[0] || "?"}</FallbackText>
@@ -31,7 +16,7 @@ export function ContentImage({ item }: { item: SimpleItemDto }) {
   return (
     <ImageWrapper>
       <StyledImage 
-        src={imageUrl} 
+        src={item.imageUrl} 
         alt={item.name || "Content"} 
         onError={() => setHasError(true)}
       />

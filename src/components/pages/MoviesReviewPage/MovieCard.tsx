@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { styled } from "@stitches/react";
 import { formatDuration } from "@/lib/utils";
-import { getImageUrlById, SimpleItemDto } from "@/lib/queries";
+import { SimpleItemDto } from "@/lib/queries";
 import { Trash2, Star } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -18,22 +18,7 @@ export function MovieCard({
   episodeCount,
   onHide,
 }: MovieCardProps) {
-  const [imageUrl, setImageUrl] = useState<string>();
   const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    const fetchImageUrl = async () => {
-      try {
-        const url = await getImageUrlById(item.id ?? "");
-        setImageUrl(url);
-      } catch (error) {
-        console.error("Failed to fetch image URL:", error);
-        setHasError(true);
-      }
-    };
-
-    void fetchImageUrl();
-  }, [item]);
 
   return (
     <Card
@@ -42,9 +27,9 @@ export function MovieCard({
       transition={{ duration: 0.25 }}
     >
       <ImageContainer>
-        {imageUrl && !hasError ? (
+        {item.imageUrl && !hasError ? (
           <CardImage 
-            src={imageUrl} 
+            src={item.imageUrl} 
             alt={item.name || "Content"}
             onError={() => setHasError(true)}
           />
