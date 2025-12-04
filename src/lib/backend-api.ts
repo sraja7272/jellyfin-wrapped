@@ -1,5 +1,6 @@
 // Backend API client for secure communication with the proxy server
 
+import { format } from "date-fns";
 import { getCacheValue, setCacheValue } from "./cache";
 import { getCurrentTimeframe } from "./timeframe";
 
@@ -245,10 +246,11 @@ export const backendFetch = async <T>(
 };
 
 // Helper to build query string with timeframe
+// Uses format() from date-fns to preserve local timezone (avoids UTC shift issues)
 function buildTimeframeQuery(): string {
   const timeframe = getCurrentTimeframe();
-  const startDate = timeframe.startDate.toISOString().split('T')[0];
-  const endDate = timeframe.endDate.toISOString().split('T')[0];
+  const startDate = format(timeframe.startDate, 'yyyy-MM-dd');
+  const endDate = format(timeframe.endDate, 'yyyy-MM-dd');
   return `?startDate=${startDate}&endDate=${endDate}`;
 }
 
