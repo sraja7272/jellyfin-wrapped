@@ -132,7 +132,7 @@ npm run dev
 | `JELLYFIN_SERVER_URL` | Yes | Your Jellyfin server URL |
 | `JELLYFIN_API_KEY` | Yes | Admin API key |
 | `JWT_SECRET` | Yes | Secret for signing JWT tokens (min 32 characters) |
-| `NODE_ENV` | Recommended | Set to `production` for production deployments. Controls CORS: <br>• **Production**: allows `https://warped.raja-house.com` <br>• **Development**: allows `https://warped.raja-house.com` + `http://localhost:5173` |
+| `NODE_ENV` | Recommended | Set to `production` for production deployments. Controls CORS: <br>• **Production**: allows `https://wrapped.raja-house.com` <br>• **Development**: allows `https://wrapped.raja-house.com` + `http://localhost:5173` |
 | `PORT` | No | Server port (default: 3001) |
 | `HOST` | No | Server host (default: 0.0.0.0) |
 
@@ -140,12 +140,11 @@ npm run dev
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `BACKEND_URL` | Yes | URL where backend is accessible from browser |
-| `JELLYFIN_SERVER_URL` | Yes | Your Jellyfin server URL (for images) |
 
 **Frontend (Vite Development):**
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VITE_BACKEND_URL` | Yes | URL of backend (e.g., `http://localhost:3001`) |
+| `BACKEND_URL` | Yes | URL of backend (e.g., `http://localhost:3001`)<br>**Note**: In `.env` file, Vite requires the `VITE_` prefix, so use `VITE_BACKEND_URL` |
 
 ## Building for Production
 

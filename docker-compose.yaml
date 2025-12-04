@@ -23,8 +23,8 @@ services:
       # Generate one with: openssl rand -base64 32
       - JWT_SECRET=<generate_a_random_secret_here>
       # Set to 'production' for production deployments
-      # Production: CORS allows only https://warped.raja-house.com
-      # Development: CORS allows https://warped.raja-house.com and http://localhost:5173
+      # Production: CORS allows only https://wrapped.raja-house.com
+      # Development: CORS allows https://wrapped.raja-house.com and http://localhost:5173
       - NODE_ENV=production
 
   frontend:

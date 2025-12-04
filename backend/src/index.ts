@@ -17,7 +17,7 @@ const JELLYFIN_API_KEY = process.env.JELLYFIN_API_KEY;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // CORS allowed origins based on environment
-const PRODUCTION_ORIGIN = 'https://warped.raja-house.com';
+const PRODUCTION_ORIGIN = 'https://wrapped.raja-house.com';
 const DEVELOPMENT_ORIGINS = [PRODUCTION_ORIGIN, 'http://localhost:5173'];
 
 if (!JWT_SECRET) {
