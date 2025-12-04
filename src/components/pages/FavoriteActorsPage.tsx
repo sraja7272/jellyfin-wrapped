@@ -7,8 +7,7 @@ import { Title, CenteredGrid } from "../ui/styled";
 import { itemVariants } from "@/lib/styled-variants";
 import PageContainer from "../PageContainer";
 import { generateGuid } from "@/lib/utils";
-import { BaseItemPerson } from "@jellyfin/sdk/lib/generated-client";
-import { SimpleItemDto } from "@/lib/queries";
+import { SimpleItemDto, PersonDto } from "@/lib/queries";
 
 export default function FavoriteActorsPage() {
   const { actors, isLoading } = useData();
@@ -42,7 +41,7 @@ export default function FavoriteActorsPage() {
                 (actor: {
                   name: string;
                   count: number;
-                  details: BaseItemPerson;
+                  details: PersonDto;
                   seenInMovies: SimpleItemDto[];
                   seenInShows: SimpleItemDto[];
                 }) => (
