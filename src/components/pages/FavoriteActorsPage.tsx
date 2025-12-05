@@ -21,6 +21,16 @@ export default function FavoriteActorsPage() {
     return <LoadingSpinner />;
   }
 
+  const topActor = favoriteActors[0];
+  const topActorCount = topActor?.count || 0;
+
+  // Fun messages based on actor appearances
+  const getActorMessage = (count: number): string => {
+    if (count >= 10) return `Your top actor appeared in ${count} titles! That's some serious star power ⭐`;
+    if (count >= 5) return `Your favorite performer showed up ${count} times. They must be good!`;
+    return "The faces that kept appearing in your watchlist 🎭";
+  };
+
   return (
     <PageContainer>
       <Container size="4" p="4">
@@ -30,7 +40,7 @@ export default function FavoriteActorsPage() {
               Your Favorite Actors
             </Title>
             <p style={{ fontSize: "1.125rem", color: "#94a3b8", marginTop: "0.5rem" }}>
-              The performers who appeared most in what you watched
+              {getActorMessage(topActorCount)}
             </p>
           </div>
 

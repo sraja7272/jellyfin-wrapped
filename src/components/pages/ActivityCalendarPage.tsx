@@ -1,4 +1,5 @@
 import { useData } from "@/contexts/DataContext";
+import { useTimePersonality } from "@/hooks/queries/useTimePersonality";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { PunchCardData } from "@/lib/queries";
 import PageContainer from "../PageContainer";
@@ -54,8 +55,9 @@ const getSize = (count: number, maxCount: number): number => {
 export default function ActivityCalendarPage() {
   const { punchCard, isLoading } = useData();
   const { data } = punchCard;
+  const { data: timePersonality, isLoading: personalityLoading } = useTimePersonality();
 
-  if (isLoading) {
+  if (isLoading || personalityLoading) {
     return <LoadingSpinner />;
   }
 
@@ -95,12 +97,43 @@ export default function ActivityCalendarPage() {
             </Subtitle>
           </HeaderSection>
 
+          {timePersonality && (
+            <PersonalityCard
+              as={motion.div}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <PersonalityLabel>Your Time Personality</PersonalityLabel>
+              <PersonalityValue>{timePersonality.personality}</PersonalityValue>
+              <PersonalitySubtext>Peak time: {timePersonality.peakTime}</PersonalitySubtext>
+              <BreakdownGrid>
+                <BreakdownItem>
+                  <BreakdownLabel>Early Bird</BreakdownLabel>
+                  <BreakdownValue>{timePersonality.breakdown.earlyBird}%</BreakdownValue>
+                </BreakdownItem>
+                <BreakdownItem>
+                  <BreakdownLabel>Day Watcher</BreakdownLabel>
+                  <BreakdownValue>{timePersonality.breakdown.dayWatcher}%</BreakdownValue>
+                </BreakdownItem>
+                <BreakdownItem>
+                  <BreakdownLabel>Prime Timer</BreakdownLabel>
+                  <BreakdownValue>{timePersonality.breakdown.primeTimer}%</BreakdownValue>
+                </BreakdownItem>
+                <BreakdownItem>
+                  <BreakdownLabel>Night Owl</BreakdownLabel>
+                  <BreakdownValue>{timePersonality.breakdown.nightOwl}%</BreakdownValue>
+                </BreakdownItem>
+              </BreakdownGrid>
+            </PersonalityCard>
+          )}
+
           {peakCount > 0 && (
             <PeakInfo
               as={motion.div}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3 }}
             >
               <PeakLabel>Peak Viewing Time</PeakLabel>
               <PeakValue>
@@ -299,4 +332,67 @@ const LegendDots = styled("div", {
 
 const LegendDot = styled("div", {
   borderRadius: "50%",
+});
+
+const PersonalityCard = styled("div", {
+  textAlign: "center",
+  padding: "24px",
+  background: "rgba(168, 85, 247, 0.05)",
+  borderRadius: "16px",
+  border: "1px solid rgba(168, 85, 247, 0.1)",
+  marginBottom: "1.5rem",
+});
+
+const PersonalityLabel = styled("span", {
+  display: "block",
+  fontSize: "0.85rem",
+  color: "#64748b",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+  marginBottom: "8px",
+});
+
+const PersonalityValue = styled("span", {
+  display: "block",
+  fontSize: "1.75rem",
+  fontWeight: 700,
+  color: "#c084fc",
+  marginBottom: "12px",
+});
+
+const PersonalitySubtext = styled("span", {
+  display: "block",
+  fontSize: "0.9rem",
+  color: "#94a3b8",
+  marginBottom: "16px",
+});
+
+const BreakdownGrid = styled("div", {
+  display: "grid",
+  gridTemplateColumns: "repeat(4, 1fr)",
+  gap: "12px",
+  marginTop: "16px",
+});
+
+const BreakdownItem = styled("div", {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "4px",
+  padding: "12px",
+  background: "rgba(255, 255, 255, 0.02)",
+  borderRadius: "8px",
+});
+
+const BreakdownLabel = styled("span", {
+  fontSize: "0.75rem",
+  color: "#64748b",
+  textAlign: "center",
+});
+
+const BreakdownValue = styled("span", {
+  fontSize: "1.1rem",
+  fontWeight: 700,
+  color: "#c084fc",
+  fontFamily: "'JetBrains Mono', monospace",
 });

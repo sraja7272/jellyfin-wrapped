@@ -1,8 +1,13 @@
 // Navigation configuration - defines all possible pages and their order
 export const ALL_PAGES = [
+  { path: "/total-time", name: "Total Time", dataKey: "totalTime" },
+  { path: "/streaks", name: "Streaks", dataKey: "streaks" },
+  { path: "/personality", name: "Personality", dataKey: "personality" },
   { path: "/TopTen", name: "Top 10", dataKey: "topTen" },
   { path: "/movies", name: "Movies", dataKey: "movies" },
   { path: "/shows", name: "TV Shows", dataKey: "shows" },
+  { path: "/decades", name: "Decades", dataKey: "decades" },
+  { path: "/watch-evolution", name: "Watch Evolution", dataKey: "watchEvolution" },
   { path: "/audio", name: "Music", dataKey: "audio" },
   { path: "/music-videos", name: "Music Videos", dataKey: "musicVideos" },
   { path: "/actors", name: "Favorite Actors", dataKey: "actors" },
@@ -16,6 +21,7 @@ export const ALL_PAGES = [
   { path: "/unfinished-shows", name: "Unfinished Shows", dataKey: "unfinishedShows" },
   { path: "/device-stats", name: "Device Stats", dataKey: "deviceStats" },
   { path: "/punch-card", name: "Activity Calendar", dataKey: "punchCard" },
+  { path: "/share", name: "Share", dataKey: "share" },
 ] as const;
 
 export type PageDataKey = typeof ALL_PAGES[number]["dataKey"];

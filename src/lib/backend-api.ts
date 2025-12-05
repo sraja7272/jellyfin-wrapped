@@ -90,6 +90,65 @@ export interface ActorStats {
   seenInShows: SimpleItemDto[];
 }
 
+export interface StreakStats {
+  longestStreak: number;
+  longestBreak: number;
+  currentStreak: number;
+  streakStartDate?: string;
+}
+
+export interface TimePersonality {
+  personality: string;
+  breakdown: {
+    earlyBird: number;
+    dayWatcher: number;
+    primeTimer: number;
+    nightOwl: number;
+  };
+  peakTime: string;
+}
+
+export interface DecadeBreakdown {
+  periodBreakdown: Array<{
+    period: string;
+    count: number;
+    percentage: number;
+  }>;
+  averageYear: number;
+  topPeriod: string;
+  personality: string;
+  message: string;
+}
+
+export interface WatchEvolution {
+  monthlyData: Array<{
+    month: string;
+    watchTimeMinutes: number;
+    topGenre?: string;
+  }>;
+  genreEvolution: Array<{
+    month: string;
+    genres: Array<{
+      genre: string;
+      count: number;
+    }>;
+  }>;
+}
+
+export interface ViewingPersonality {
+  personality: string;
+  description: string;
+  traits: string[];
+}
+
+export interface FunComparisons {
+  comparisons: Array<{
+    label: string;
+    value: number;
+    unit: string;
+  }>;
+}
+
 // Get backend URL from environment
 export const getBackendUrl = (): string => {
   // Check for runtime environment (Docker)
@@ -308,4 +367,28 @@ export const fetchActors = async (): Promise<ActorStats[]> => {
 
 export const fetchWatchedOnDate = async (date: string): Promise<SimpleItemDto[]> => {
   return backendFetch(`/api/watched-on-date?date=${date}`);
+};
+
+export const fetchStreaks = async (): Promise<StreakStats> => {
+  return backendFetch(`/api/streaks${buildTimeframeQuery()}`);
+};
+
+export const fetchTimePersonality = async (): Promise<TimePersonality> => {
+  return backendFetch(`/api/time-personality${buildTimeframeQuery()}`);
+};
+
+export const fetchDecades = async (): Promise<DecadeBreakdown> => {
+  return backendFetch(`/api/decades${buildTimeframeQuery()}`);
+};
+
+export const fetchWatchEvolution = async (): Promise<WatchEvolution> => {
+  return backendFetch(`/api/watch-evolution${buildTimeframeQuery()}`);
+};
+
+export const fetchPersonality = async (): Promise<ViewingPersonality> => {
+  return backendFetch(`/api/personality${buildTimeframeQuery()}`);
+};
+
+export const fetchComparisons = async (): Promise<FunComparisons> => {
+  return backendFetch(`/api/comparisons${buildTimeframeQuery()}`);
 };

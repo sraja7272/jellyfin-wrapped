@@ -21,6 +21,21 @@ export default function ShowReviewPage() {
     return <LoadingSpinner />;
   }
 
+  // Calculate total episodes watched
+  const totalEpisodes = visibleShows.reduce(
+    (sum: number, show: { episodeCount?: number }) => sum + (show.episodeCount || 0),
+    0
+  );
+
+  // Fun messages based on show count and episodes
+  const getShowMessage = (showCount: number, episodes: number): string => {
+    if (episodes >= 500) return `Over ${episodes} episodes across ${showCount} shows. That's some serious binge-watching! 📺`;
+    if (episodes >= 200) return `${episodes} episodes? You've basically watched a whole network!`;
+    if (showCount >= 20) return `${showCount} shows and ${episodes} episodes. You're a serial binge-watcher!`;
+    if (showCount >= 10) return "Double-digit shows! Your watchlist is impressive.";
+    return "Every show tells a story. Here's yours!";
+  };
+
   return (
     <PageContainer>
       <Container size="4" p="4">
@@ -30,7 +45,7 @@ export default function ShowReviewPage() {
               You Watched {visibleShows.length} Shows
             </Title>
             <p style={{ fontSize: "1.125rem", color: "#94a3b8", marginTop: "0.5rem" }}>
-              All the TV series you enjoyed this year
+              {getShowMessage(visibleShows.length, totalEpisodes)}
             </p>
           </div>
 

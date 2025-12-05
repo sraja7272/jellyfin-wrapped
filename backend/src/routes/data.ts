@@ -342,5 +342,119 @@ export async function dataRoutes(fastify: FastifyInstance) {
       }
     }
   );
+
+  // Get streak statistics
+  fastify.get<{ Querystring: TimeframeQuery }>(
+    '/streaks',
+    async (request, reply) => {
+      try {
+        const config = getConfig(request, fastify);
+        const timeframe = getTimeframe(request.query);
+        const stats = await queries.getStreakStats(config, timeframe);
+        return stats;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Invalid')) {
+          return reply.status(400).send({ error: error.message });
+        }
+        fastify.log.error(error, 'Error fetching streaks');
+        return reply.status(500).send({ error: 'Failed to fetch streaks' });
+      }
+    }
+  );
+
+  // Get time-of-day personality
+  fastify.get<{ Querystring: TimeframeQuery }>(
+    '/time-personality',
+    async (request, reply) => {
+      try {
+        const config = getConfig(request, fastify);
+        const timeframe = getTimeframe(request.query);
+        const personality = await queries.getTimePersonality(config, timeframe);
+        return personality;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Invalid')) {
+          return reply.status(400).send({ error: error.message });
+        }
+        fastify.log.error(error, 'Error fetching time personality');
+        return reply.status(500).send({ error: 'Failed to fetch time personality' });
+      }
+    }
+  );
+
+  // Get decade breakdown
+  fastify.get<{ Querystring: TimeframeQuery }>(
+    '/decades',
+    async (request, reply) => {
+      try {
+        const config = getConfig(request, fastify);
+        const timeframe = getTimeframe(request.query);
+        const breakdown = await queries.getDecadeBreakdown(config, timeframe);
+        return breakdown;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Invalid')) {
+          return reply.status(400).send({ error: error.message });
+        }
+        fastify.log.error(error, 'Error fetching decade breakdown');
+        return reply.status(500).send({ error: 'Failed to fetch decade breakdown' });
+      }
+    }
+  );
+
+  // Get watch evolution
+  fastify.get<{ Querystring: TimeframeQuery }>(
+    '/watch-evolution',
+    async (request, reply) => {
+      try {
+        const config = getConfig(request, fastify);
+        const timeframe = getTimeframe(request.query);
+        const evolution = await queries.getWatchEvolution(config, timeframe);
+        return evolution;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Invalid')) {
+          return reply.status(400).send({ error: error.message });
+        }
+        fastify.log.error(error, 'Error fetching watch evolution');
+        return reply.status(500).send({ error: 'Failed to fetch watch evolution' });
+      }
+    }
+  );
+
+  // Get viewing personality
+  fastify.get<{ Querystring: TimeframeQuery }>(
+    '/personality',
+    async (request, reply) => {
+      try {
+        const config = getConfig(request, fastify);
+        const timeframe = getTimeframe(request.query);
+        const personality = await queries.getPersonality(config, timeframe);
+        return personality;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Invalid')) {
+          return reply.status(400).send({ error: error.message });
+        }
+        fastify.log.error(error, 'Error fetching personality');
+        return reply.status(500).send({ error: 'Failed to fetch personality' });
+      }
+    }
+  );
+
+  // Get fun comparisons
+  fastify.get<{ Querystring: TimeframeQuery }>(
+    '/comparisons',
+    async (request, reply) => {
+      try {
+        const config = getConfig(request, fastify);
+        const timeframe = getTimeframe(request.query);
+        const comparisons = await queries.getFunComparisons(config, timeframe);
+        return comparisons;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Invalid')) {
+          return reply.status(400).send({ error: error.message });
+        }
+        fastify.log.error(error, 'Error fetching comparisons');
+        return reply.status(500).send({ error: 'Failed to fetch comparisons' });
+      }
+    }
+  );
 }
 

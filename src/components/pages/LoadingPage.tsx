@@ -12,6 +12,12 @@ import { useDeviceStats } from "../../hooks/queries/useDeviceStats";
 import { useMonthlyShowStats } from "../../hooks/queries/useMonthlyShowStats";
 import { usePunchCard } from "../../hooks/queries/usePunchCard";
 import { useWatchedOnDate } from "../../hooks/queries/useWatchedOnDate";
+import { useStreaks } from "../../hooks/queries/useStreaks";
+import { usePersonality } from "../../hooks/queries/usePersonality";
+import { useDecades } from "../../hooks/queries/useDecades";
+import { useWatchEvolution } from "../../hooks/queries/useWatchEvolution";
+import { useTimePersonality } from "../../hooks/queries/useTimePersonality";
+import { useComparisons } from "../../hooks/queries/useComparisons";
 import { setAvailablePages, PageDataKey, getAvailablePages } from "../../lib/navigation";
 import { getTopGenre } from "../../lib/genre-helpers";
 import { getTopRatedContent } from "../../lib/rating-helpers";
@@ -69,6 +75,14 @@ export function LoadingPage() {
   const halloween = useWatchedOnDate(holidayDates.halloween);
   const valentines = useWatchedOnDate(holidayDates.valentines);
 
+  // Fetch new features data
+  const streaks = useStreaks();
+  const personality = usePersonality();
+  const decades = useDecades();
+  const watchEvolution = useWatchEvolution();
+  const timePersonality = useTimePersonality();
+  const comparisons = useComparisons();
+
   const allLoaded =
     !topTen.isLoading &&
     !movies.isLoading &&
@@ -84,7 +98,13 @@ export function LoadingPage() {
     !christmas.isLoading &&
     !christmasEve.isLoading &&
     !halloween.isLoading &&
-    !valentines.isLoading;
+    !valentines.isLoading &&
+    !streaks.isLoading &&
+    !personality.isLoading &&
+    !decades.isLoading &&
+    !watchEvolution.isLoading &&
+    !timePersonality.isLoading &&
+    !comparisons.isLoading;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -110,6 +130,21 @@ export function LoadingPage() {
       // Determine which pages have content
       const availablePages: PageDataKey[] = [];
 
+      // Always include total time page first (if we have movies or shows)
+      if ((movies.data?.length ?? 0) > 0 || (shows.data?.length ?? 0) > 0) {
+        availablePages.push("totalTime");
+      }
+
+      // Streaks - if we have calendar data
+      if (streaks.data && (streaks.data.longestStreak > 0 || streaks.data.currentStreak > 0)) {
+        availablePages.push("streaks");
+      }
+
+      // Personality - if we have data
+      if (personality.data) {
+        availablePages.push("personality");
+      }
+
       // TopTen - has content if there are movies or shows
       if ((topTen.data?.movies?.length ?? 0) > 0 || (topTen.data?.shows?.length ?? 0) > 0) {
         availablePages.push("topTen");
@@ -123,6 +158,16 @@ export function LoadingPage() {
       // Shows
       if ((shows.data?.length ?? 0) > 0) {
         availablePages.push("shows");
+      }
+
+      // Decades - if we have data
+      if (decades.data && decades.data.periodBreakdown.length > 0) {
+        availablePages.push("decades");
+      }
+
+      // Watch Evolution - if we have data
+      if (watchEvolution.data && watchEvolution.data.monthlyData.length > 0) {
+        availablePages.push("watchEvolution");
       }
 
       // Audio/Music
@@ -204,6 +249,16 @@ export function LoadingPage() {
         availablePages.push("punchCard");
       }
 
+      // Share page - always available if we have any data
+      if (
+        (movies.data?.length ?? 0) > 0 ||
+        (shows.data?.length ?? 0) > 0 ||
+        personality.data ||
+        topTen.data
+      ) {
+        availablePages.push("share");
+      }
+
       // Set the available pages
       setAvailablePages(availablePages);
 
@@ -214,7 +269,8 @@ export function LoadingPage() {
   }, [allLoaded, topTen.data, movies.data, shows.data, actors.data, audio.data, 
       musicVideos.data, liveTV.data, unfinishedShows.data, deviceStats.data,
       monthlyShowStats.data, punchCard.data, 
-      christmas.data, christmasEve.data, halloween.data, valentines.data, navigate]);
+      christmas.data, christmasEve.data, halloween.data, valentines.data,
+      streaks.data, personality.data, decades.data, watchEvolution.data, navigate]);
 
   return (
     <Container>
