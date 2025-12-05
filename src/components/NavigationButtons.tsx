@@ -183,6 +183,10 @@ const NavButtonContainer = styled("div", {
   padding: "20px 24px 32px",
   background: "linear-gradient(to top, rgba(3, 3, 4, 0.98) 0%, rgba(3, 3, 4, 0.92) 40%, transparent 100%)",
   backdropFilter: "blur(16px)",
+  
+  "@media (max-width: 768px)": {
+    padding: "16px 16px 24px",
+  },
 });
 
 const ButtonWrapper = styled("div", {
@@ -190,6 +194,11 @@ const ButtonWrapper = styled("div", {
   gap: "14px",
   maxWidth: "640px",
   margin: "0 auto",
+  
+  "@media (max-width: 768px)": {
+    gap: "10px",
+    maxWidth: "100%",
+  },
 });
 
 const NavButton = styled("button", {
@@ -209,6 +218,12 @@ const NavButton = styled("button", {
   letterSpacing: "-0.01em",
   position: "relative",
   overflow: "hidden",
+  
+  "@media (max-width: 768px)": {
+    padding: "14px 20px",
+    fontSize: "0.9rem",
+    gap: "8px",
+  },
 
   variants: {
     variant: {

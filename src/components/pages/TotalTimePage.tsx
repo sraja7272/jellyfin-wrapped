@@ -191,6 +191,11 @@ const ContentWrapper = styled("div", {
   maxWidth: "100%",
   margin: "0 auto",
   boxSizing: "border-box",
+  
+  "@media (max-width: 768px)": {
+    padding: "0.5rem 0.75rem 0.25rem 0.75rem",
+    minHeight: "calc(100vh - 6rem)",
+  },
 });
 
 const Badge = styled("div", {
@@ -255,6 +260,17 @@ const StatsRow = styled("div", {
   borderRadius: "20px",
   border: "1px solid rgba(255, 255, 255, 0.05)",
   backdropFilter: "blur(12px)",
+  
+  "@media (max-width: 768px)": {
+    gap: "1rem",
+    padding: "0.75rem 1rem",
+    borderRadius: "16px",
+  },
+  
+  "@media (max-width: 480px)": {
+    gap: "0.75rem",
+    padding: "0.75rem 0.5rem",
+  },
 });
 
 const StatItem = styled("div", {
@@ -269,6 +285,14 @@ const StatValue = styled("div", {
   fontWeight: 700,
   fontFamily: "'JetBrains Mono', monospace",
   color: "#00f0ff",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "1.5rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    fontSize: "1.25rem",
+  },
 });
 
 const StatLabel = styled("div", {
@@ -283,6 +307,14 @@ const StatDivider = styled("div", {
   width: "1px",
   height: "40px",
   background: "rgba(255, 255, 255, 0.1)",
+  
+  "@media (max-width: 768px)": {
+    height: "32px",
+  },
+  
+  "@media (max-width: 480px)": {
+    height: "28px",
+  },
 });
 
 const Message = styled("p", {
@@ -308,6 +340,11 @@ const ComparisonsGrid = styled("div", {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
   gap: "1rem",
+  
+  "@media (max-width: 640px)": {
+    gridTemplateColumns: "1fr",
+    gap: "0.75rem",
+  },
 });
 
 const ComparisonCard = styled("div", {
@@ -326,6 +363,10 @@ const ComparisonCard = styled("div", {
     transform: "translateY(-4px)",
     borderColor: "rgba(0, 240, 255, 0.2)",
     boxShadow: "0 8px 24px rgba(0, 240, 255, 0.1)",
+  },
+  
+  "@media (max-width: 768px)": {
+    padding: "1.25rem",
   },
 });
 

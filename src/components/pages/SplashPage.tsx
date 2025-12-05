@@ -12,7 +12,7 @@ import {
 } from "../ui/styled";
 import TimeframeSelector from "../TimeframeSelector";
 import { TimeframeOption } from "../../lib/timeframe";
-import { Film, BarChart3, Calendar, Sparkles, Play, Star, Tv } from "lucide-react";
+import { Film, BarChart3, Sparkles, Play, Star, Tv } from "lucide-react";
 import { styled } from "@stitches/react";
 
 const NEXT_PAGE = "/configure";
@@ -77,7 +77,6 @@ const SplashPage = () => {
     { icon: Film, text: "Top movies & watch time", color: "#00f0ff" },
     { icon: Tv, text: "TV show marathon stats", color: "#a855f7" },
     { icon: BarChart3, text: "Viewing pattern analysis", color: "#10b981" },
-    { icon: Calendar, text: "Custom time ranges", color: "#f59e0b" },
   ];
 
   return (
@@ -94,7 +93,17 @@ const SplashPage = () => {
             rotate: { duration: 30, repeat: Infinity, ease: "linear" },
             y: { duration: 8, repeat: Infinity, ease: "easeInOut" }
           }}
-          style={{ top: "15%", left: "8%", width: "120px", height: "120px" }}
+          css={{
+            top: "15%",
+            left: "8%",
+            width: "120px",
+            height: "120px",
+            "@media (max-width: 768px)": {
+              width: "60px",
+              height: "60px",
+              display: "none",
+            },
+          }}
         />
         <GeometricShape
           as={motion.div}
@@ -107,7 +116,17 @@ const SplashPage = () => {
             rotate: { duration: 25, repeat: Infinity, ease: "linear" },
             scale: { duration: 6, repeat: Infinity, ease: "easeInOut" }
           }}
-          style={{ top: "25%", right: "10%", width: "160px", height: "160px" }}
+          css={{
+            top: "25%",
+            right: "10%",
+            width: "160px",
+            height: "160px",
+            "@media (max-width: 768px)": {
+              width: "80px",
+              height: "80px",
+              display: "none",
+            },
+          }}
         />
         <GeometricShape
           as={motion.div}
@@ -120,7 +139,17 @@ const SplashPage = () => {
             rotate: { duration: 35, repeat: Infinity, ease: "linear" },
             x: { duration: 10, repeat: Infinity, ease: "easeInOut" }
           }}
-          style={{ bottom: "20%", left: "12%", width: "80px", height: "80px" }}
+          css={{
+            bottom: "20%",
+            left: "12%",
+            width: "80px",
+            height: "80px",
+            "@media (max-width: 768px)": {
+              width: "40px",
+              height: "40px",
+              display: "none",
+            },
+          }}
         />
         <GeometricShape
           as={motion.div}
@@ -129,7 +158,17 @@ const SplashPage = () => {
             opacity: [0.3, 0.6, 0.3],
           }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          style={{ bottom: "30%", right: "15%", width: "100px", height: "100px" }}
+          css={{
+            bottom: "30%",
+            right: "15%",
+            width: "100px",
+            height: "100px",
+            "@media (max-width: 768px)": {
+              width: "50px",
+              height: "50px",
+              display: "none",
+            },
+          }}
         />
       </GeometricLayer>
 
@@ -148,7 +187,15 @@ const SplashPage = () => {
             left: "0%", 
             width: "600px", 
             height: "600px", 
-            background: "radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%)",
+            "@media (max-width: 768px)": {
+              width: "300px",
+              height: "300px",
+            },
+            "@media (max-width: 480px)": {
+              width: "200px",
+              height: "200px",
+            },
           }}
         />
         <Orb 
@@ -164,7 +211,17 @@ const SplashPage = () => {
             right: "-10%", 
             width: "700px", 
             height: "700px", 
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%)",
+            "@media (max-width: 768px)": {
+              width: "350px",
+              height: "350px",
+              right: "-15%",
+            },
+            "@media (max-width: 480px)": {
+              width: "250px",
+              height: "250px",
+              right: "-20%",
+            },
           }}
         />
         <Orb 
@@ -180,7 +237,15 @@ const SplashPage = () => {
             left: "20%", 
             width: "550px", 
             height: "550px", 
-            background: "radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%)",
+            "@media (max-width: 768px)": {
+              width: "280px",
+              height: "280px",
+            },
+            "@media (max-width: 480px)": {
+              width: "200px",
+              height: "200px",
+            },
           }}
         />
       </OrbContainer>
@@ -222,14 +287,6 @@ const SplashPage = () => {
         initial="hidden"
         animate="visible"
       >
-        <LogoBadge as={motion.div} variants={itemVariants}>
-          <BadgeIcon>
-            <Sparkles size={14} />
-          </BadgeIcon>
-          <span>Your Year in Entertainment</span>
-          <BadgeGlow />
-        </LogoBadge>
-
         <Title as={motion.h1} variants={itemVariants}>
           Jellyfin<br />Wrapped
         </Title>
@@ -385,6 +442,18 @@ const LogoBadge = styled("div", {
   backdropFilter: "blur(12px)",
   position: "relative",
   overflow: "hidden",
+  
+  "@media (max-width: 768px)": {
+    padding: "10px 20px",
+    fontSize: "0.85rem",
+    marginBottom: "1.5rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    padding: "8px 16px",
+    fontSize: "0.8rem",
+    marginBottom: "1.25rem",
+  },
 });
 
 const BadgeIcon = styled("span", {
@@ -420,6 +489,11 @@ const FeatureIcon = styled("span", {
   flexShrink: 0,
   transition: "all 0.25s ease",
   
+  "@media (max-width: 480px)": {
+    width: "38px",
+    height: "38px",
+  },
+  
   "li:hover &": {
     transform: "scale(1.1) rotate(5deg)",
   },
@@ -431,6 +505,11 @@ const FeatureText = styled("span", {
   fontWeight: 500,
   fontSize: "1rem",
   letterSpacing: "-0.01em",
+  
+  "@media (max-width: 480px)": {
+    marginLeft: "10px",
+    fontSize: "0.9rem",
+  },
 });
 
 const FeatureArrow = styled("span", {

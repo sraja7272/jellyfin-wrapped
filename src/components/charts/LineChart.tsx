@@ -57,9 +57,13 @@ export function LineChart({
           .domain([0, d3.max(data, (d: LineChartData) => d.x) ?? 0])
           .range([0, innerWidth]);
 
+    const maxY = d3.max(data, (d: LineChartData) => d.y) ?? 0;
+    // Round up to nearest multiple of 5 for the domain
+    const roundedMax = Math.ceil(maxY / 5) * 5;
+    
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(data, (d: LineChartData) => d.y) ?? 0])
+      .domain([0, roundedMax])
       .range([innerHeight, 0]);
 
     const line = d3
@@ -97,7 +101,9 @@ export function LineChart({
       ? d3.axisBottom(x as d3.ScalePoint<string>).tickFormat((d) => {
           // Format month labels (e.g., "2024-01" -> "Jan 2024")
           if (typeof d === "string" && d.match(/^\d{4}-\d{2}$/)) {
-            const date = new Date(d + "-01");
+            // Parse year and month explicitly to avoid timezone issues
+            const [year, month] = d.split("-").map(Number);
+            const date = new Date(year, month - 1, 1); // month is 0-indexed in JS Date
             return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
           }
           return d;
@@ -126,15 +132,41 @@ export function LineChart({
       .style("font-size", "14px")
       .text(xLabel);
 
-    svg
-      .append("g")
-      .call(d3.axisLeft(y))
+    const yAxis = d3.axisLeft(y)
+      .ticks(Math.ceil(roundedMax / 5)) // Generate ticks at multiples of 5
+      .tickFormat((d) => {
+        const value = typeof d === "number" ? d : Number(d);
+        // Only show values that are multiples of 5
+        if (value % 5 === 0) {
+          // Format as hours with 1 decimal place if less than 10, otherwise whole number
+          if (value < 10) {
+            return value.toFixed(1);
+          }
+          return Math.round(value).toString();
+        }
+        return ""; // Don't show non-multiples of 5
+      });
+    
+    const yAxisGroup = svg.append("g").call(yAxis);
+    
+    // Style y-axis text and ticks for better visibility
+    yAxisGroup
+      .selectAll("text")
+      .style("fill", "#e2e8f0")
+      .style("font-size", "12px");
+    
+    yAxisGroup
+      .selectAll("line, path")
+      .style("stroke", "#475569");
+    
+    yAxisGroup
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", -40)
       .attr("x", -innerHeight / 2)
-      .attr("fill", "currentColor")
+      .attr("fill", "#94a3b8")
       .style("text-anchor", "middle")
+      .style("font-size", "14px")
       .text(yLabel);
   }, [data, width, height, xLabel, yLabel, lineColor, areaColor]);
 

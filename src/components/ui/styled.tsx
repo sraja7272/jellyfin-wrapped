@@ -30,17 +30,35 @@ export const Container = styled("div", {
     backgroundSize: "60px 70px",
     pointerEvents: "none",
   },
+  
+  "@media (max-width: 768px)": {
+    padding: "16px",
+    alignItems: "flex-start",
+    paddingTop: "1rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    padding: "12px",
+    paddingTop: "0.75rem",
+  },
 });
 
 export const ContentWrapper = styled("div", {
   maxWidth: "1000px",
   textAlign: "center",
-  padding: "80px 48px",
+  padding: "40px 48px 80px 48px",
   position: "relative",
   zIndex: 1,
+  width: "100%",
+  boxSizing: "border-box",
   
-  "@media (max-width: 640px)": {
-    padding: "48px 20px",
+  "@media (max-width: 768px)": {
+    padding: "20px 24px 32px 24px",
+    maxWidth: "100%",
+  },
+  
+  "@media (max-width: 480px)": {
+    padding: "16px 16px 24px 16px",
   },
 });
 
@@ -71,6 +89,18 @@ export const Subtitle = styled("p", {
   maxWidth: "620px",
   margin: "0 auto 3rem",
   fontWeight: 400,
+  
+  "@media (max-width: 768px)": {
+    marginBottom: "2rem",
+    margin: "0 auto 2rem",
+    fontSize: "clamp(1rem, 3vw, 1.125rem)",
+    lineHeight: 1.6,
+  },
+  
+  "@media (max-width: 480px)": {
+    marginBottom: "1.5rem",
+    margin: "0 auto 1.5rem",
+  },
 });
 
 export const FeaturesList = styled("ul", {
@@ -82,6 +112,18 @@ export const FeaturesList = styled("ul", {
   gap: "1rem",
   maxWidth: "800px",
   margin: "0 auto 3.5rem",
+  
+  "@media (max-width: 768px)": {
+    gridTemplateColumns: "1fr",
+    gap: "0.75rem",
+    marginBottom: "2rem",
+    margin: "0 auto 2rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    marginBottom: "1.5rem",
+    margin: "0 auto 1.5rem",
+  },
 });
 
 export const FeatureItem = styled("li", {
@@ -98,6 +140,16 @@ export const FeatureItem = styled("li", {
   transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
   position: "relative",
   overflow: "hidden",
+  
+  "@media (max-width: 768px)": {
+    padding: "1rem 1.25rem",
+    fontSize: "0.95rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    padding: "0.875rem 1rem",
+    fontSize: "0.9rem",
+  },
   
   "&::before": {
     content: '""',
@@ -136,6 +188,23 @@ export const StyledButton = styled("button", {
   boxShadow: "0 6px 40px rgba(0, 240, 255, 0.35)",
   overflow: "hidden",
   letterSpacing: "-0.01em",
+  width: "100%",
+  maxWidth: "400px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  margin: "0 auto",
+  
+  "@media (max-width: 768px)": {
+    padding: "18px 40px",
+    fontSize: "1rem",
+    maxWidth: "100%",
+  },
+  
+  "@media (max-width: 480px)": {
+    padding: "16px 32px",
+    fontSize: "0.95rem",
+  },
   
   // Shine effect
   "&::before": {
@@ -186,6 +255,26 @@ export const Disclaimer = styled("p", {
   lineHeight: 1.7,
   maxWidth: "500px",
   margin: "3.5rem auto 0",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "0.75rem",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "0.8rem",
+    marginTop: "2rem",
+    margin: "2rem auto 0",
+    padding: "0 1rem",
+    gap: "0.625rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    fontSize: "0.75rem",
+    marginTop: "1.5rem",
+    margin: "1.5rem auto 0",
+    lineHeight: 1.6,
+    gap: "0.5rem",
+  },
   
   "& a": {
     color: "#00f0ff",

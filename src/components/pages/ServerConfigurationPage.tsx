@@ -135,13 +135,6 @@ const ServerConfigurationPage = () => {
         <form onSubmit={(e) => void handleConnect(e)}>
           <FormContent>
             <motion.div variants={itemVariants}>
-              <ServerDisplay>
-                <Shield size={16} />
-                <span>Secure connection</span>
-              </ServerDisplay>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
               <InputGroup>
                 <InputLabel>
                   <User size={14} />
@@ -171,7 +164,6 @@ const ServerConfigurationPage = () => {
                     onChange={handlePasswordChange}
                   />
                 </InputWrapper>
-                <InputHint>Leave empty if no password is set</InputHint>
               </InputGroup>
             </motion.div>
 

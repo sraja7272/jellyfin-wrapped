@@ -199,6 +199,11 @@ const StatSection = styled("div", {
   borderRadius: "18px",
   padding: "24px",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+  
+  "@media (max-width: 768px)": {
+    padding: "20px 16px",
+    borderRadius: "16px",
+  },
 });
 
 const SectionHeader = styled("div", {

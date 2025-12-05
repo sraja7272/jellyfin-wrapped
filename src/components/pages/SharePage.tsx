@@ -10,6 +10,7 @@ import { Sparkles, Clock, Film, Tv, ChevronLeft, ChevronRight, TrendingUp } from
 import { ShareCard } from "../ShareCard";
 import { formatWatchTime } from "@/lib/time-helpers";
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function SharePage() {
   const { movies, shows, isLoading } = useData();
@@ -17,7 +18,11 @@ export default function SharePage() {
   const { data: topTen, isLoading: topTenLoading } = useTopTen();
   const [currentIndex, setCurrentIndex] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [centerOffset, setCenterOffset] = useState(0);
+  const [cardWidth, setCardWidth] = useState(400);
+  const gap = 32;
+  const isMobile = useIsMobile();
 
   const totalWatchTime = useMemo(() => {
     if (isLoading || !movies.data || !shows.data) return 0;
@@ -66,21 +71,26 @@ export default function SharePage() {
     return cardArray;
   }, [totalWatchTime, topMovie, topShow, top3Movies, top3Shows, movieCount, showCount]);
 
-  // Calculate center offset after cards is defined
+  // Calculate center offset after cards is defined (desktop only)
   useEffect(() => {
+    if (isMobile) {
+      // On mobile, use native scroll - no need for offset calculations
+      return;
+    }
+    
     const calculateOffset = () => {
       if (wrapperRef.current && cards.length > 0) {
         const wrapperWidth = wrapperRef.current.offsetWidth;
-        const cardWidth = 400;
-        const gap = 32; // 2rem gap between cards
+        const calculatedCardWidth = 400;
+        setCardWidth(calculatedCardWidth);
         
         // Center the first card - this ensures it's fully visible at index 0
-        const firstCardOffset = (wrapperWidth - cardWidth) / 2;
+        const firstCardOffset = (wrapperWidth - calculatedCardWidth) / 2;
         
         // Verify the last card will be fully visible
-        // Position of last card: firstCardOffset - (cards.length - 1) * (cardWidth + gap)
-        const lastCardX = firstCardOffset - (cards.length - 1) * (cardWidth + gap);
-        const lastCardRightEdge = lastCardX + cardWidth;
+        // Position of last card: firstCardOffset - (cards.length - 1) * (calculatedCardWidth + gap)
+        const lastCardX = firstCardOffset - (cards.length - 1) * (calculatedCardWidth + gap);
+        const lastCardRightEdge = lastCardX + calculatedCardWidth;
         
         // If last card would extend beyond the wrapper, adjust the offset
         // We want the last card's right edge to be at most at wrapperWidth
@@ -103,7 +113,71 @@ export default function SharePage() {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", calculateOffset);
     };
-  }, [cards.length]); // Recalculate when number of cards changes
+  }, [cards.length, isMobile]); // Recalculate when number of cards changes or mobile state changes
+
+  // Handle scroll snapping on mobile
+  useEffect(() => {
+    if (!isMobile || !containerRef.current) return;
+
+    const container = containerRef.current;
+
+    const snapToCard = () => {
+      const scrollLeft = container.scrollLeft;
+      const viewportWidth = window.innerWidth;
+      const cardWidth = viewportWidth * 0.90; // 90vw
+      const padding = viewportWidth * 0.05; // 5vw (half of remaining 10vw)
+      
+      // Calculate which card should be centered
+      // Account for the padding on the left
+      const adjustedScroll = scrollLeft + padding;
+      const cardIndex = Math.round(adjustedScroll / cardWidth);
+      
+      // Clamp to valid card indices
+      const clampedIndex = Math.max(0, Math.min(cardIndex, cards.length - 1));
+      
+      // Calculate target scroll position to center the card
+      const targetScroll = clampedIndex * cardWidth - padding;
+      
+      // Snap to the target position
+      container.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+      });
+    };
+
+    let scrollTimeout: NodeJS.Timeout;
+    let isScrolling = false;
+
+    const handleScroll = () => {
+      isScrolling = true;
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+        snapToCard();
+      }, 150);
+    };
+
+    const handleTouchEnd = () => {
+      if (isScrolling) {
+        setTimeout(() => {
+          snapToCard();
+        }, 100);
+      } else {
+        snapToCard();
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('touchcancel', handleTouchEnd);
+      clearTimeout(scrollTimeout);
+    };
+  }, [isMobile, cards.length]);
 
   if (isLoading || comparisonsLoading || topTenLoading) {
     return <LoadingSpinner />;
@@ -132,7 +206,7 @@ export default function SharePage() {
 
   return (
     <PageContainer>
-      <Container size="4" p="4">
+      <Container size="4" p={isMobile ? "0" : "4"}>
         <HeaderSection
           as={motion.div}
           initial={{ opacity: 0, y: 40 }}
@@ -150,20 +224,20 @@ export default function SharePage() {
         </HeaderSection>
 
         <CarouselSection>
-          <CarouselContainer>
+          <CarouselContainer ref={containerRef}>
             <CarouselWrapper ref={wrapperRef}>
               <CarouselTrack
                 as={motion.div}
-                drag="x"
-                dragConstraints={centerOffset > 0 ? { 
-                  left: centerOffset - (cards.length - 1) * 432, // 400px card + 32px gap
+                drag={!isMobile ? "x" : false}
+                dragConstraints={!isMobile && centerOffset > 0 ? { 
+                  left: centerOffset - (cards.length - 1) * (cardWidth + gap),
                   right: centerOffset 
                 } : undefined}
                 dragElastic={0.1}
                 onDragEnd={handleDragEnd}
-                animate={{ 
-                  x: cards.length > 0 && centerOffset > 0 ? centerOffset - currentIndex * 432 : 0 
-                }}
+                animate={!isMobile ? { 
+                  x: cards.length > 0 && centerOffset > 0 ? centerOffset - currentIndex * (cardWidth + gap) : 0 
+                } : {}}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 initial={false}
                 style={{ willChange: "transform" }}
@@ -199,7 +273,7 @@ export default function SharePage() {
                           {topMovie.imageUrl ? (
                             <img src={topMovie.imageUrl} alt={topMovie.name || ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           ) : (
-                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: "4rem", fontWeight: 700 }}>
+                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: isMobile ? "clamp(2rem, 8vw, 3rem)" : "4rem", fontWeight: 700 }}>
                               {topMovie.name?.[0] || "?"}
                             </div>
                           )}
@@ -224,7 +298,7 @@ export default function SharePage() {
                           {topShow.item.imageUrl ? (
                             <img src={topShow.item.imageUrl} alt={topShow.item.name || ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           ) : (
-                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: "4rem", fontWeight: 700 }}>
+                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: isMobile ? "clamp(2rem, 8vw, 3rem)" : "4rem", fontWeight: 700 }}>
                               {topShow.item.name?.[0] || "?"}
                             </div>
                           )}
@@ -251,7 +325,7 @@ export default function SharePage() {
                                 {movie.imageUrl ? (
                                   <img src={movie.imageUrl} alt={movie.name || ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                 ) : (
-                                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: "2rem", fontWeight: 700 }}>
+                                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: isMobile ? "clamp(1.25rem, 5vw, 1.75rem)" : "2rem", fontWeight: 700 }}>
                                     {movie.name?.[0] || "?"}
                                   </div>
                                 )}
@@ -283,7 +357,7 @@ export default function SharePage() {
                                 {show.item.imageUrl ? (
                                   <img src={show.item.imageUrl} alt={show.item.name || ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                 ) : (
-                                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: "2rem", fontWeight: 700 }}>
+                                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)", color: "#00f0ff", fontSize: isMobile ? "clamp(1.25rem, 5vw, 1.75rem)" : "2rem", fontWeight: 700 }}>
                                     {show.item.name?.[0] || "?"}
                                   </div>
                                 )}
@@ -385,6 +459,11 @@ const HeaderSection = styled("div", {
   textAlign: "center",
   marginBottom: "3rem",
   paddingTop: "2rem",
+  
+  "@media (max-width: 768px)": {
+    marginBottom: "2rem",
+    paddingTop: "1.5rem",
+  },
 });
 
 const Badge = styled("div", {
@@ -429,6 +508,10 @@ const Subtitle = styled("p", {
   fontSize: "1.15rem",
   color: "#94a3b8",
   fontWeight: 400,
+  
+  "@media (max-width: 768px)": {
+    fontSize: "1rem",
+  },
 });
 
 const TotalTimeCardContent = styled("div", {
@@ -441,6 +524,11 @@ const TotalTimeCardContent = styled("div", {
   height: "100%",
   gap: "2rem",
   padding: "2rem 0",
+  
+  "@media (max-width: 768px)": {
+    gap: "clamp(0.75rem, 2vh, 1.5rem)",
+    padding: "clamp(0.5rem, 1.5vh, 1rem) 0",
+  },
 });
 
 const CardTitle = styled("h2", {
@@ -450,6 +538,11 @@ const CardTitle = styled("h2", {
   textTransform: "uppercase",
   letterSpacing: "0.15em",
   marginBottom: "0.5rem",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.75rem, 2vw, 1rem)",
+    marginBottom: "clamp(0.25rem, 1vh, 0.5rem)",
+  },
 });
 
 const TimeDisplay = styled("div", {
@@ -471,6 +564,10 @@ const TimeValue = styled("div", {
   backgroundClip: "text",
   lineHeight: 1.2,
   letterSpacing: "-0.02em",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(1.5rem, 6vw, 2.5rem)",
+  },
 });
 
 const TimeLabel = styled("div", {
@@ -478,6 +575,10 @@ const TimeLabel = styled("div", {
   fontWeight: 700,
   color: "#f8fafc",
   letterSpacing: "-0.01em",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(1rem, 4vw, 1.5rem)",
+  },
 });
 
 const ComparisonText = styled("div", {
@@ -485,6 +586,10 @@ const ComparisonText = styled("div", {
   color: "#94a3b8",
   fontStyle: "italic",
   fontWeight: 500,
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.75rem, 2.5vw, 1rem)",
+  },
 });
 
 const TopItemCardContent = styled("div", {
@@ -497,6 +602,11 @@ const TopItemCardContent = styled("div", {
   height: "100%",
   gap: "1.75rem",
   padding: "2rem 0",
+  
+  "@media (max-width: 768px)": {
+    gap: "clamp(0.75rem, 2vh, 1.5rem)",
+    padding: "clamp(0.5rem, 1.5vh, 1rem) 0",
+  },
 });
 
 const ItemLabel = styled("div", {
@@ -505,6 +615,10 @@ const ItemLabel = styled("div", {
   color: "#94a3b8",
   textTransform: "uppercase",
   letterSpacing: "0.2em",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.7rem, 2vw, 0.85rem)",
+  },
 });
 
 const ItemImage = styled("div", {
@@ -514,6 +628,13 @@ const ItemImage = styled("div", {
   overflow: "hidden",
   border: "3px solid rgba(0, 240, 255, 0.3)",
   boxShadow: "0 20px 60px rgba(0, 240, 255, 0.2)",
+  
+  "@media (max-width: 768px)": {
+    width: "clamp(120px, 30vw, 180px)",
+    height: "clamp(180px, 45vw, 270px)",
+    borderRadius: "clamp(12px, 3vw, 16px)",
+    border: "2px solid rgba(0, 240, 255, 0.3)",
+  },
 });
 
 const ItemName = styled("div", {
@@ -523,6 +644,10 @@ const ItemName = styled("div", {
   lineHeight: 1.2,
   letterSpacing: "-0.02em",
   maxWidth: "90%",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(1.25rem, 5vw, 1.75rem)",
+  },
 });
 
 const ItemMeta = styled("div", {
@@ -530,6 +655,10 @@ const ItemMeta = styled("div", {
   color: "#94a3b8",
   fontWeight: 600,
   fontFamily: "'Inter', sans-serif",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.75rem, 2.5vw, 0.9rem)",
+  },
 });
 
 const Top3CardContent = styled("div", {
@@ -542,6 +671,11 @@ const Top3CardContent = styled("div", {
   height: "100%",
   gap: "1.75rem",
   padding: "2rem 0",
+  
+  "@media (max-width: 768px)": {
+    gap: "clamp(0.75rem, 2vh, 1.25rem)",
+    padding: "clamp(0.5rem, 1.5vh, 1rem) 0",
+  },
 });
 
 const Top3Grid = styled("div", {
@@ -560,6 +694,12 @@ const Top3Item = styled("div", {
   background: "rgba(255, 255, 255, 0.05)",
   borderRadius: "16px",
   border: "1px solid rgba(255, 255, 255, 0.1)",
+  
+  "@media (max-width: 768px)": {
+    padding: "clamp(0.5rem, 1.5vh, 0.75rem)",
+    gap: "clamp(0.5rem, 1.5vw, 0.75rem)",
+    borderRadius: "clamp(12px, 3vw, 14px)",
+  },
 });
 
 const Top3Rank = styled("div", {
@@ -569,6 +709,11 @@ const Top3Rank = styled("div", {
   fontFamily: "'Inter', sans-serif",
   minWidth: "35px",
   textAlign: "center",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.9rem, 3vw, 1.1rem)",
+    minWidth: "clamp(25px, 6vw, 30px)",
+  },
 });
 
 const Top3Image = styled("div", {
@@ -579,6 +724,12 @@ const Top3Image = styled("div", {
   border: "2px solid rgba(0, 240, 255, 0.3)",
   flexShrink: 0,
   boxShadow: "0 4px 12px rgba(0, 240, 255, 0.2)",
+  
+  "@media (max-width: 768px)": {
+    width: "clamp(50px, 12vw, 60px)",
+    height: "clamp(75px, 18vw, 90px)",
+    borderRadius: "clamp(8px, 2vw, 10px)",
+  },
 });
 
 const Top3Name = styled("div", {
@@ -589,6 +740,10 @@ const Top3Name = styled("div", {
   textAlign: "left",
   lineHeight: 1.3,
   letterSpacing: "-0.01em",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.85rem, 2.5vw, 1rem)",
+  },
 });
 
 const Top3Meta = styled("div", {
@@ -596,6 +751,10 @@ const Top3Meta = styled("div", {
   color: "#94a3b8",
   fontFamily: "'Inter', sans-serif",
   fontWeight: 600,
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.7rem, 2vw, 0.85rem)",
+  },
 });
 
 const StatsCardContent = styled("div", {
@@ -615,6 +774,10 @@ const StatsGrid = styled("div", {
   gridTemplateColumns: "repeat(2, 1fr)",
   gap: "1.5rem",
   width: "100%",
+  
+  "@media (max-width: 768px)": {
+    gap: "clamp(0.5rem, 1.5vh, 1rem)",
+  },
 });
 
 const StatItem = styled("div", {
@@ -627,6 +790,12 @@ const StatItem = styled("div", {
   border: "1px solid rgba(255, 255, 255, 0.1)",
   minHeight: "180px", // Ensure consistent height for alignment
   justifyContent: "space-between", // Distribute space evenly
+  
+  "@media (max-width: 768px)": {
+    padding: "clamp(0.75rem, 2vh, 1rem)",
+    minHeight: "clamp(120px, 25vh, 150px)",
+    borderRadius: "clamp(12px, 3vw, 14px)",
+  },
 });
 
 const StatIcon = styled("div", {
@@ -641,6 +810,18 @@ const StatIcon = styled("div", {
   boxShadow: "0 4px 16px rgba(0, 240, 255, 0.3)",
   flexShrink: 0, // Prevent icon from shrinking
   marginBottom: "0.75rem", // Space after icon
+  
+  "@media (max-width: 768px)": {
+    width: "clamp(40px, 10vw, 48px)",
+    height: "clamp(40px, 10vw, 48px)",
+    borderRadius: "clamp(10px, 2.5vw, 12px)",
+    marginBottom: "clamp(0.5rem, 1.5vh, 0.75rem)",
+    
+    "& svg": {
+      width: "clamp(20px, 5vw, 28px)",
+      height: "clamp(20px, 5vw, 28px)",
+    },
+  },
 });
 
 const StatValue = styled("div", {
@@ -658,6 +839,13 @@ const StatValue = styled("div", {
   textAlign: "center",
   marginBottom: "0.75rem", // Space before label
   flex: 1, // Take available space
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(1rem, 4vw, 1.5rem)",
+    minHeight: "clamp(2rem, 5vh, 3rem)",
+    maxHeight: "clamp(2rem, 5vh, 3rem)",
+    marginBottom: "clamp(0.5rem, 1.5vh, 0.75rem)",
+  },
 });
 
 const StatValueSmall = styled("div", {
@@ -675,6 +863,13 @@ const StatValueSmall = styled("div", {
   textAlign: "center",
   marginBottom: "0.75rem", // Space before label
   flex: 1, // Take available space
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.75rem, 3vw, 0.9rem)",
+    minHeight: "clamp(2rem, 5vh, 2.5rem)",
+    maxHeight: "clamp(2rem, 5vh, 2.5rem)",
+    marginBottom: "clamp(0.5rem, 1.5vh, 0.75rem)",
+  },
 });
 
 const StatLabel = styled("div", {
@@ -689,6 +884,11 @@ const StatLabel = styled("div", {
   alignItems: "center",
   justifyContent: "center",
   flexShrink: 0, // Prevent label from shrinking
+  
+  "@media (max-width: 768px)": {
+    fontSize: "clamp(0.65rem, 2vw, 0.75rem)",
+    height: "clamp(1rem, 2.5vh, 1.1rem)",
+  },
 });
 
 const CarouselSection = styled("div", {
@@ -697,6 +897,13 @@ const CarouselSection = styled("div", {
   marginBottom: "3rem",
   paddingLeft: "80px", // Space for left button (48px + 32px margin)
   paddingRight: "80px", // Space for right button (48px + 32px margin)
+  
+  "@media (max-width: 768px)": {
+    paddingLeft: "0",
+    paddingRight: "0",
+    marginBottom: "2rem",
+    overflow: "hidden",
+  },
 });
 
 const CarouselContainer = styled("div", {
@@ -705,6 +912,22 @@ const CarouselContainer = styled("div", {
   position: "relative",
   paddingLeft: "0",
   paddingRight: "0",
+  
+  "@media (max-width: 768px)": {
+    overflowX: "auto",
+    overflowY: "hidden",
+    scrollSnapType: "x mandatory",
+    scrollBehavior: "smooth",
+    WebkitOverflowScrolling: "touch",
+    scrollbarWidth: "none", // Firefox
+    msOverflowStyle: "none", // IE/Edge
+    scrollPaddingLeft: "5vw", // Padding to allow first card to center
+    scrollPaddingRight: "5vw", // Padding to allow last card to center
+    
+    "&::-webkit-scrollbar": {
+      display: "none", // Chrome/Safari
+    },
+  },
 });
 
 const CarouselWrapper = styled("div", {
@@ -712,6 +935,12 @@ const CarouselWrapper = styled("div", {
   overflow: "hidden",
   position: "relative",
   display: "flex",
+  
+  "@media (max-width: 768px)": {
+    width: "100%",
+    overflow: "visible",
+    justifyContent: "flex-start",
+  },
 });
 
 const CarouselTrack = styled("div", {
@@ -723,6 +952,17 @@ const CarouselTrack = styled("div", {
   "&:active": {
     cursor: "grabbing",
   },
+  
+  "@media (max-width: 768px)": {
+    gap: "0",
+    cursor: "default",
+    userSelect: "auto",
+    width: "max-content",
+    justifyContent: "flex-start",
+    paddingLeft: "5vw", // Padding to allow first card to center (half of remaining 10vw)
+    paddingRight: "5vw", // Padding to allow last card to center (half of remaining 10vw)
+    display: "flex",
+  },
 });
 
 const CardSlide = styled("div", {
@@ -730,6 +970,18 @@ const CardSlide = styled("div", {
   width: "400px",
   display: "flex",
   justifyContent: "center",
+  
+  "@media (max-width: 768px)": {
+    width: "90vw", // 90% of viewport width (10% smaller than full width)
+    minWidth: "90vw",
+    maxWidth: "90vw",
+    scrollSnapAlign: "center",
+    scrollSnapStop: "always",
+    display: "flex",
+    justifyContent: "center",
+    boxSizing: "border-box",
+    flexShrink: 0,
+  },
 });
 
 const NavButton = styled("button", {
@@ -758,6 +1010,10 @@ const NavButton = styled("button", {
     opacity: 0.3,
     cursor: "not-allowed",
   },
+  
+  "@media (max-width: 768px)": {
+    display: "none",
+  },
 });
 
 const DotsContainer = styled("div", {
@@ -765,6 +1021,10 @@ const DotsContainer = styled("div", {
   gap: "0.75rem",
   justifyContent: "center",
   marginTop: "2rem",
+  
+  "@media (max-width: 768px)": {
+    display: "none",
+  },
 });
 
 const Dot = styled("button", {
