@@ -120,6 +120,8 @@ const Navigation = () => {
         as={motion.button}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+        style={{ willChange: "transform" }}
         isOpen={isOpen}
       >
         <AnimatePresence mode="wait">

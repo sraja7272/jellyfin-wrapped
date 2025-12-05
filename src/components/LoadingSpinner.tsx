@@ -10,10 +10,11 @@ export function LoadingSpinner() {
           as={motion.div}
           animate={{ rotate: 360 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform", transform: "translateZ(0)" }}
         />
         <Ring
           as={motion.div}
-          style={{ width: "300px", height: "300px" }}
+          style={{ width: "300px", height: "300px", willChange: "transform", transform: "translateZ(0)" }}
           animate={{ rotate: -360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         />
@@ -23,11 +24,13 @@ export function LoadingSpinner() {
           as={motion.div}
           animate={{ rotate: 360 }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
         />
         <SpinnerMiddle
           as={motion.div}
           animate={{ rotate: -360 }}
           transition={{ duration: 1.3, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
         />
         <SpinnerCore
           as={motion.div}
@@ -35,13 +38,15 @@ export function LoadingSpinner() {
             scale: [1, 1.3, 1],
             opacity: [0.6, 1, 0.6],
           }}
-          transition={{ duration: 1.2, repeat: Infinity }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+          style={{ willChange: "transform, opacity" }}
         />
         <LoadingText
           as={motion.p}
           initial={{ opacity: 0 }}
           animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{ willChange: "opacity" }}
         >
           Loading your recap...
         </LoadingText>
@@ -87,11 +92,15 @@ const Ring = styled("div", {
   position: "absolute",
   top: "50%",
   left: "50%",
-  transform: "translate(-50%, -50%)",
+  transform: "translate(-50%, -50%) translateZ(0)",
+  WebkitTransform: "translate(-50%, -50%) translateZ(0)",
   width: "220px",
   height: "220px",
   border: "1px dashed rgba(0, 240, 255, 0.1)",
   borderRadius: "50%",
+  willChange: "transform",
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
 });
 
 const SpinnerWrapper = styled("div", {
@@ -111,6 +120,11 @@ const SpinnerOuter = styled("div", {
   borderRightColor: "rgba(0, 240, 255, 0.3)",
   borderRadius: "50%",
   boxShadow: "0 0 30px rgba(0, 240, 255, 0.25)",
+  willChange: "transform",
+  transform: "translateZ(0)",
+  WebkitTransform: "translateZ(0)",
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
 });
 
 const SpinnerMiddle = styled("div", {
@@ -122,6 +136,11 @@ const SpinnerMiddle = styled("div", {
   borderLeftColor: "rgba(168, 85, 247, 0.3)",
   borderRadius: "50%",
   boxShadow: "0 0 25px rgba(168, 85, 247, 0.25)",
+  willChange: "transform",
+  transform: "translateZ(0)",
+  WebkitTransform: "translateZ(0)",
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
 });
 
 const SpinnerCore = styled("div", {
@@ -131,6 +150,11 @@ const SpinnerCore = styled("div", {
   borderRadius: "50%",
   boxShadow: "0 0 40px rgba(0, 240, 255, 0.5)",
   marginTop: "33px",
+  willChange: "transform, opacity",
+  transform: "translateZ(0)",
+  WebkitTransform: "translateZ(0)",
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
 });
 
 const LoadingText = styled("p", {

@@ -102,16 +102,16 @@ const pageVariants = {
     y: 0,
     zIndex: 1,
     transition: {
-      duration: 0.5,
-      ease: [0.32, 0.72, 0, 1],
+      duration: 0.4,
+      ease: [0.25, 0.46, 0.45, 0.94], // Optimized easing for mobile
     },
   },
   exit: (direction: number) => ({
     y: direction > 0 ? "-100%" : "100%",
     zIndex: 0,
     transition: {
-      duration: 0.5,
-      ease: [0.32, 0.72, 0, 1],
+      duration: 0.4,
+      ease: [0.25, 0.46, 0.45, 0.94], // Optimized easing for mobile
     },
   }),
 };
@@ -142,6 +142,11 @@ const ScrollablePageWrapper = styled(motion.div, {
   overflowY: "auto",
   overflowX: "hidden",
   background: "linear-gradient(180deg, #030304 0%, #08090c 50%, #030304 100%)",
+  willChange: "transform",
+  transform: "translateZ(0)",
+  WebkitTransform: "translateZ(0)",
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
   // Custom scrollbar
   "&::-webkit-scrollbar": {
     width: "8px",

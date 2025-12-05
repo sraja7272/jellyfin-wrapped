@@ -5,6 +5,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global mobile animation optimizations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force GPU acceleration for animated elements */
+[data-motion-component],
+[data-framer-component] {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Optimize all motion components */
+[style*="will-change"] {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Reduce animation complexity on mobile */
+@media (max-width: 768px) {
+  /* Simplify animations on mobile */
+  * {
+    animation-timing-function: ease-out !important;
+  }
+  
+  /* Disable hover effects on touch devices */
+  @media (hover: none) {
+    *:hover {
+      transform: none !important;
+    }
+  }
+}
+
 :root {
   /* Noir Base - Deep, rich blacks */
   --bg-void: #030304;
@@ -288,7 +328,19 @@ body {
 
 /* ========================================
    ANIMATIONS - Refined & Smooth
+   Mobile optimizations for iOS/Chrome
    ======================================== */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 @keyframes gradient-flow {
   0%, 100% {
@@ -301,13 +353,13 @@ body {
 
 @keyframes float {
   0%, 100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
   25% {
-    transform: translateY(-8px) rotate(1deg);
+    transform: translate3d(0, -8px, 0) rotate(1deg);
   }
   75% {
-    transform: translateY(-4px) rotate(-1deg);
+    transform: translate3d(0, -4px, 0) rotate(-1deg);
   }
 }
 
@@ -333,44 +385,44 @@ body {
 
 @keyframes spin {
   to {
-    transform: rotate(360deg);
+    transform: rotate(360deg) translateZ(0);
   }
 }
 
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translate3d(0, 24px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.92) translateZ(0);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateZ(0);
   }
 }
 
 @keyframes orb-float {
   0%, 100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   25% {
-    transform: translate(40px, -30px) scale(1.05);
+    transform: translate3d(40px, -30px, 0) scale(1.05);
   }
   50% {
-    transform: translate(-30px, 25px) scale(0.95);
+    transform: translate3d(-30px, 25px, 0) scale(0.95);
   }
   75% {
-    transform: translate(-40px, -15px) scale(1.02);
+    transform: translate3d(-40px, -15px, 0) scale(1.02);
   }
 }
 
@@ -396,10 +448,18 @@ body {
 
 .float {
   animation: float 6s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
+  will-change: box-shadow, opacity;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .shimmer {
@@ -411,10 +471,16 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
+  will-change: background-position;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .border-glow {
   animation: border-glow 3s ease-in-out infinite;
+  will-change: border-color, box-shadow;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* ========================================
