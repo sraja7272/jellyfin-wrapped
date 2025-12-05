@@ -32,7 +32,7 @@ export default function OldestMoviePage() {
   return (
     <PageContainer>
       <Container size="4" p="4">
-        <Grid gap="6">
+        <Grid gap="3">
           <div style={{ textAlign: "center" }}>
             <Title as={motion.h1} variants={itemVariants}>
               Oldest Movie You Watched
@@ -45,13 +45,11 @@ export default function OldestMoviePage() {
             </Subtitle>
           </div>
 
-          <Grid
-            columns={{ initial: "1", sm: "1", md: "1", lg: "1" }}
-            gap="4"
-            style={{ justifyItems: "center" }}
-          >
-            <MovieCard item={movie} />
-          </Grid>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ maxWidth: "200px", width: "100%" }}>
+              <MovieCard item={movie} />
+            </div>
+          </div>
         </Grid>
       </Container>
     </PageContainer>

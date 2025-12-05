@@ -93,6 +93,11 @@ const ContentWrapper = styled("div", {
   maxWidth: "100%",
   margin: "0 auto",
   boxSizing: "border-box",
+  
+  "@media (max-width: 768px)": {
+    padding: "2rem 0.75rem 1.5rem",
+    minHeight: "calc(100vh - 6rem)",
+  },
 });
 
 const Badge = styled("div", {
@@ -165,6 +170,10 @@ const TraitsGrid = styled("div", {
   flexWrap: "wrap",
   gap: "1rem",
   justifyContent: "center",
+  
+  "@media (max-width: 640px)": {
+    gap: "0.75rem",
+  },
 });
 
 const TraitBadge = styled("div", {
@@ -184,6 +193,11 @@ const TraitBadge = styled("div", {
   "&:hover": {
     transform: "translateY(-4px)",
     boxShadow: "0 8px 24px rgba(0, 240, 255, 0.2)",
+  },
+  
+  "@media (max-width: 640px)": {
+    padding: "0.625rem 1.25rem",
+    fontSize: "0.9rem",
   },
 });
 

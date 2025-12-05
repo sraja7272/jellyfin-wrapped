@@ -86,20 +86,21 @@ const ContentGrid = styled("div", {
   
   "& > *": {
     width: "calc(50% - 10px)",
-    maxWidth: "220px",
+    maxWidth: "200px",
+    minWidth: "140px",
+  },
+  
+  "@media (min-width: 640px)": {
+    "& > *": {
+      width: "calc(33.333% - 14px)",
+      maxWidth: "200px",
+    },
   },
   
   "@media (min-width: 768px)": {
     "& > *": {
-      width: "calc(33.333% - 14px)",
-      maxWidth: "240px",
-    },
-  },
-  
-  "@media (min-width: 1024px)": {
-    "& > *": {
       width: "calc(25% - 15px)",
-      maxWidth: "260px",
+      maxWidth: "200px",
     },
   },
 });

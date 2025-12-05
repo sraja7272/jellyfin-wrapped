@@ -135,13 +135,6 @@ const ServerConfigurationPage = () => {
         <form onSubmit={(e) => void handleConnect(e)}>
           <FormContent>
             <motion.div variants={itemVariants}>
-              <ServerDisplay>
-                <Shield size={16} />
-                <span>Secure connection</span>
-              </ServerDisplay>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
               <InputGroup>
                 <InputLabel>
                   <User size={14} />
@@ -171,7 +164,6 @@ const ServerConfigurationPage = () => {
                     onChange={handlePasswordChange}
                   />
                 </InputWrapper>
-                <InputHint>Leave empty if no password is set</InputHint>
               </InputGroup>
             </motion.div>
 
@@ -373,25 +365,6 @@ const StyledInput = styled("input", {
   "&:hover:not(:focus)": {
     borderColor: "rgba(255, 255, 255, 0.08)",
   },
-});
-
-const InputHint = styled("p", {
-  fontSize: "0.75rem",
-  color: "#475569",
-  marginTop: "10px",
-});
-
-const ServerDisplay = styled("div", {
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  padding: "16px 20px",
-  background: "rgba(16, 185, 129, 0.06)",
-  border: "1px solid rgba(16, 185, 129, 0.12)",
-  borderRadius: "14px",
-  fontSize: "0.9rem",
-  color: "#10b981",
-  fontFamily: "'JetBrains Mono', monospace",
 });
 
 const SubmitButton = styled("button", {

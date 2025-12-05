@@ -6,9 +6,28 @@ import { motion } from "framer-motion";
 import { styled } from "@stitches/react";
 import { Sparkles, Calendar } from "lucide-react";
 import { PieChart } from "../charts/PieChart";
+import { useState, useEffect } from "react";
 
 export default function DecadeBreakdownPage() {
   const { data, isLoading } = useDecades();
+  const [containerWidth, setContainerWidth] = useState(400);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      const width = window.innerWidth;
+      if (width < 480) {
+        setContainerWidth(Math.min(320, width - 40));
+      } else if (width < 768) {
+        setContainerWidth(Math.min(360, width - 60));
+      } else {
+        setContainerWidth(400);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -60,7 +79,7 @@ export default function DecadeBreakdownPage() {
                 data={chartData}
                 colors={colors}
                 title=""
-                containerWidth={400}
+                containerWidth={containerWidth}
               />
             </ChartContainer>
             <Legend>
@@ -108,6 +127,11 @@ const HeaderSection = styled("div", {
   textAlign: "center",
   marginBottom: "3rem",
   paddingTop: "2rem",
+  
+  "@media (max-width: 768px)": {
+    marginBottom: "2rem",
+    paddingTop: "1.5rem",
+  },
 });
 
 const Badge = styled("div", {
@@ -159,6 +183,12 @@ const ContentGrid = styled("div", {
   gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
   gap: "2rem",
   marginBottom: "3rem",
+  
+  "@media (max-width: 768px)": {
+    gridTemplateColumns: "1fr",
+    gap: "1.5rem",
+    marginBottom: "2rem",
+  },
 });
 
 const ChartCard = styled("div", {
@@ -170,6 +200,11 @@ const ChartCard = styled("div", {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  
+  "@media (max-width: 768px)": {
+    padding: "1.5rem",
+    borderRadius: "20px",
+  },
 });
 
 const ChartTitle = styled("h2", {
@@ -185,6 +220,30 @@ const ChartContainer = styled("div", {
   justifyContent: "center",
   alignItems: "center",
   marginBottom: "2rem",
+  width: "100%",
+  overflow: "visible",
+  
+  "@media (max-width: 768px)": {
+    marginBottom: "1.5rem",
+  },
+  
+  "& > div": {
+    width: "100%",
+    maxWidth: "400px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    
+    "@media (max-width: 768px)": {
+      maxWidth: "100%",
+    },
+  },
+  
+  "& svg": {
+    maxWidth: "100%",
+    height: "auto",
+    display: "block",
+  },
 });
 
 const Legend = styled("div", {
@@ -234,6 +293,11 @@ const StatsCard = styled("div", {
   flexDirection: "column",
   alignItems: "center",
   textAlign: "center",
+  
+  "@media (max-width: 768px)": {
+    padding: "1.5rem",
+    borderRadius: "20px",
+  },
 });
 
 const StatIcon = styled("div", {
@@ -265,6 +329,14 @@ const StatValue = styled("div", {
   color: "#00f0ff",
   textShadow: "0 0 40px rgba(0, 240, 255, 0.5)",
   marginBottom: "0.5rem",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "2.5rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    fontSize: "2rem",
+  },
 });
 
 const StatSubtext = styled("p", {

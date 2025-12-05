@@ -243,11 +243,16 @@ const SideNav = styled("nav", {
   WebkitBackdropFilter: "blur(40px) saturate(180%)",
   borderRight: "1px solid rgba(255, 255, 255, 0.04)",
   boxShadow: "4px 0 60px rgba(0, 0, 0, 0.6)",
-  zIndex: 1000,
+  zIndex: 1002,
   overflowY: "auto",
   overflowX: "hidden",
   display: "flex",
   flexDirection: "column",
+  
+  "@media (max-width: 768px)": {
+    width: "100%",
+    maxWidth: "100vw",
+  },
 });
 
 const TopAccent = styled("div", {
@@ -266,6 +271,10 @@ const NavHeader = styled("div", {
   alignItems: "center",
   padding: "28px 24px",
   borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
+  
+  "@media (max-width: 768px)": {
+    padding: "20px 16px",
+  },
 });
 
 const NavLogo = styled("div", {
@@ -297,6 +306,10 @@ const SubText = styled("span", {
 const TimeframeContainer = styled("div", {
   padding: "20px 24px 24px",
   borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
+  
+  "@media (max-width: 768px)": {
+    padding: "16px",
+  },
 });
 
 const NavTitle = styled("h2", {
@@ -315,6 +328,10 @@ const NavList = styled("ul", {
   padding: "16px 12px",
   margin: 0,
   flexGrow: 1,
+  
+  "@media (max-width: 768px)": {
+    padding: "12px 8px",
+  },
 });
 
 const NavItem = styled("li", {
@@ -390,7 +407,7 @@ const NavToggle = styled("button", {
   position: "fixed",
   top: "24px",
   left: "24px",
-  zIndex: 1001,
+  zIndex: 1003,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -411,6 +428,13 @@ const NavToggle = styled("button", {
     boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.1)",
   },
 
+  "@media (max-width: 768px)": {
+    top: "16px",
+    left: "16px",
+    width: "44px",
+    height: "44px",
+  },
+
   variants: {
     isOpen: {
       true: {
@@ -429,12 +453,16 @@ const Overlay = styled("div", {
   bottom: 0,
   background: "rgba(0, 0, 0, 0.75)",
   backdropFilter: "blur(12px)",
-  zIndex: 999,
+  zIndex: 1001,
 });
 
 const NavFooter = styled("div", {
   padding: "20px 24px",
   borderTop: "1px solid rgba(255, 255, 255, 0.04)",
+  
+  "@media (max-width: 768px)": {
+    padding: "16px",
+  },
 });
 
 const FooterBadge = styled("div", {

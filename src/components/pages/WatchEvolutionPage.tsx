@@ -6,10 +6,32 @@ import { motion } from "framer-motion";
 import { styled } from "@stitches/react";
 import { Sparkles, TrendingUp } from "lucide-react";
 import { LineChart } from "../charts/LineChart";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 export default function WatchEvolutionPage() {
   const { data, isLoading } = useWatchEvolution();
+  const [chartWidth, setChartWidth] = useState(800);
+  const [chartHeight, setChartHeight] = useState(400);
+
+  useEffect(() => {
+    const updateChartSize = () => {
+      const width = window.innerWidth;
+      if (width < 480) {
+        setChartWidth(Math.min(320, width - 40));
+        setChartHeight(250);
+      } else if (width < 768) {
+        setChartWidth(Math.min(600, width - 60));
+        setChartHeight(300);
+      } else {
+        setChartWidth(800);
+        setChartHeight(400);
+      }
+    };
+
+    updateChartSize();
+    window.addEventListener("resize", updateChartSize);
+    return () => window.removeEventListener("resize", updateChartSize);
+  }, []);
 
   // Move hooks before early returns
   const chartData = useMemo(() => {
@@ -19,7 +41,7 @@ export default function WatchEvolutionPage() {
       const monthStr = item.month.substring(0, 7);
       return {
         x: index,
-        y: item.watchTimeMinutes,
+        y: item.watchTimeMinutes / 60, // Convert minutes to hours
         label: monthStr,
       };
     });
@@ -72,10 +94,10 @@ export default function WatchEvolutionPage() {
           <ChartTitle>Monthly Watch Time</ChartTitle>
           <LineChart
             data={chartData}
-            width={800}
-            height={400}
+            width={chartWidth}
+            height={chartHeight}
             xLabel="Month"
-            yLabel="Minutes"
+            yLabel="Hours"
             lineColor="#00f0ff"
             areaColor="rgba(0, 240, 255, 0.1)"
           />
@@ -115,6 +137,11 @@ const HeaderSection = styled("div", {
   textAlign: "center",
   marginBottom: "3rem",
   paddingTop: "2rem",
+  
+  "@media (max-width: 768px)": {
+    marginBottom: "2rem",
+    paddingTop: "1.5rem",
+  },
 });
 
 const Badge = styled("div", {
@@ -171,7 +198,20 @@ const ChartCard = styled("div", {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  overflowX: "auto",
+  overflow: "visible",
+  width: "100%",
+  
+  "@media (max-width: 768px)": {
+    padding: "1.5rem",
+    borderRadius: "20px",
+    marginBottom: "1.5rem",
+  },
+  
+  "& svg": {
+    maxWidth: "100%",
+    height: "auto",
+    display: "block",
+  },
 });
 
 const ChartTitle = styled("h2", {
@@ -193,6 +233,13 @@ const GenreEvolutionCard = styled("div", {
   gap: "1.5rem",
   textAlign: "center",
   justifyContent: "center",
+  
+  "@media (max-width: 768px)": {
+    padding: "1.5rem",
+    borderRadius: "20px",
+    flexDirection: "column",
+    gap: "1rem",
+  },
 });
 
 const EvolutionIcon = styled("div", {
@@ -213,6 +260,14 @@ const EvolutionText = styled("p", {
   color: "#f8fafc",
   lineHeight: 1.6,
   margin: 0,
+  
+  "@media (max-width: 768px)": {
+    fontSize: "1.1rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    fontSize: "1rem",
+  },
 });
 
 const EvolutionHighlight = styled("span", {

@@ -97,9 +97,32 @@ const Subtitle = styled("p", {
 const ContentGrid = styled("div", {
   display: "flex",
   flexWrap: "wrap",
-  gap: "1.5rem",
   justifyContent: "center",
-  alignItems: "flex-start",
+  alignItems: "start",
+  gap: "1rem",
+  
+  "& > *": {
+    width: "calc(50% - 0.5rem)",
+    maxWidth: "200px",
+    minWidth: "140px",
+  },
+  
+  "@media (min-width: 640px)": {
+    alignItems: "stretch",
+    gap: "20px",
+    
+    "& > *": {
+      width: "calc(33.333% - 14px)",
+      maxWidth: "200px",
+    },
+  },
+  
+  "@media (min-width: 768px)": {
+    "& > *": {
+      width: "calc(25% - 15px)",
+      maxWidth: "200px",
+    },
+  },
 });
 
 const ShowCard = styled("div", {
@@ -109,10 +132,12 @@ const ShowCard = styled("div", {
   border: "1px solid rgba(255, 255, 255, 0.05)",
   borderRadius: "18px",
   overflow: "hidden",
-  width: "280px",
-  flexShrink: 0,
+  width: "100%",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
   transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+  display: "flex",
+  flexDirection: "column",
+  height: "auto",
 
   "&:hover": {
     borderColor: "rgba(168, 85, 247, 0.2)",
@@ -120,8 +145,12 @@ const ShowCard = styled("div", {
   },
   
   "@media (max-width: 640px)": {
-    width: "100%",
-    maxWidth: "320px",
+    borderRadius: "14px",
+    height: "auto",
+  },
+  
+  "@media (min-width: 640px)": {
+    height: "100%",
   },
 });
 
@@ -130,6 +159,7 @@ const ImageContainer = styled("div", {
   width: "100%",
   aspectRatio: "2/3",
   overflow: "hidden",
+  flexShrink: 0,
 });
 
 const PosterImage = styled("img", {
@@ -146,6 +176,13 @@ const PlaceholderImage = styled("div", {
   justifyContent: "center",
   background: "linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(244, 63, 94, 0.1) 100%)",
   color: "#64748b",
+  
+  "@media (max-width: 640px)": {
+    "& svg": {
+      width: "24px",
+      height: "24px",
+    },
+  },
 });
 
 const ProgressBadge = styled("div", {
@@ -153,13 +190,21 @@ const ProgressBadge = styled("div", {
   top: "12px",
   right: "12px",
   padding: "8px 12px",
-  background: "rgba(168, 85, 247, 0.15)",
-  backdropFilter: "blur(8px)",
+  background: "rgba(0, 0, 0, 0.85)",
+  backdropFilter: "blur(12px)",
   borderRadius: "10px",
-  color: "#a855f7",
+  color: "#c084fc",
   fontSize: "0.9rem",
   fontWeight: 700,
-  border: "1px solid rgba(168, 85, 247, 0.2)",
+  border: "1px solid rgba(168, 85, 247, 0.4)",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.2) inset",
+  
+  "@media (max-width: 640px)": {
+    top: "8px",
+    right: "8px",
+    padding: "6px 10px",
+    fontSize: "0.75rem",
+  },
 });
 
 const CardContent = styled("div", {
@@ -167,6 +212,13 @@ const CardContent = styled("div", {
   display: "flex",
   flexDirection: "column",
   gap: "8px",
+  flex: 1,
+  minHeight: 0,
+  
+  "@media (max-width: 640px)": {
+    padding: "12px 14px 16px",
+    gap: "6px",
+  },
 });
 
 const ShowTitle = styled("h3", {
@@ -179,6 +231,15 @@ const ShowTitle = styled("h3", {
   WebkitLineClamp: 2,
   WebkitBoxOrient: "vertical",
   overflow: "hidden",
+  minHeight: "2.6em", // Reserve space for exactly 2 lines
+  maxHeight: "2.6em",
+  
+  "@media (max-width: 640px)": {
+    fontSize: "0.95rem",
+    WebkitLineClamp: 2,
+    minHeight: "2.47em", // 2 lines at 0.95rem with 1.3 line-height
+    maxHeight: "2.47em",
+  },
 });
 
 const EpisodeCount = styled("div", {
@@ -188,9 +249,23 @@ const EpisodeCount = styled("div", {
   fontSize: "0.9rem",
   color: "#a855f7",
   fontWeight: 500,
+  minHeight: "1.35em", // Fixed height for consistent spacing
+  flexShrink: 0,
+  
+  "@media (max-width: 640px)": {
+    fontSize: "0.8rem",
+    gap: "4px",
+    minHeight: "1.2em",
+  },
   
   "& svg": {
     color: "#a855f7",
+    flexShrink: 0,
+    
+    "@media (max-width: 640px)": {
+      width: "12px",
+      height: "12px",
+    },
   },
 });
 
@@ -201,6 +276,7 @@ const ProgressBarContainer = styled("div", {
   borderRadius: "2px",
   overflow: "hidden",
   marginTop: "4px",
+  flexShrink: 0,
 });
 
 const ProgressBar = styled("div", {
@@ -216,9 +292,23 @@ const LastWatched = styled("div", {
   gap: "6px",
   fontSize: "0.8rem",
   color: "#64748b",
-  marginTop: "4px",
+  marginTop: "auto", // Push to bottom of card
+  minHeight: "1.2em", // Fixed height for consistent spacing
+  flexShrink: 0,
+  
+  "@media (max-width: 640px)": {
+    fontSize: "0.7rem",
+    gap: "4px",
+    minHeight: "1.05em",
+  },
   
   "& svg": {
     color: "#475569",
+    flexShrink: 0,
+    
+    "@media (max-width: 640px)": {
+      width: "10px",
+      height: "10px",
+    },
   },
 });

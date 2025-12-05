@@ -122,6 +122,11 @@ const ContentWrapper = styled("div", {
   maxWidth: "100%",
   margin: "0 auto",
   boxSizing: "border-box",
+  
+  "@media (max-width: 768px)": {
+    padding: "0.5rem 0.75rem 0.25rem 0.75rem",
+    minHeight: "calc(100vh - 6rem)",
+  },
 });
 
 const Badge = styled("div", {
@@ -171,6 +176,11 @@ const StatsGrid = styled("div", {
   width: "100%",
   maxWidth: "900px",
   marginBottom: "1rem",
+  
+  "@media (max-width: 640px)": {
+    gridTemplateColumns: "1fr",
+    gap: "1rem",
+  },
 });
 
 const StatCard = styled("div", {
@@ -189,6 +199,11 @@ const StatCard = styled("div", {
     transform: "translateY(-8px)",
     borderColor: "rgba(0, 240, 255, 0.2)",
     boxShadow: "0 12px 40px rgba(0, 240, 255, 0.15)",
+  },
+  
+  "@media (max-width: 768px)": {
+    padding: "1.5rem",
+    borderRadius: "20px",
   },
 });
 
@@ -211,6 +226,14 @@ const StatValue = styled("div", {
   fontFamily: "'JetBrains Mono', monospace",
   color: "#00f0ff",
   textShadow: "0 0 40px rgba(0, 240, 255, 0.5)",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "2.5rem",
+  },
+  
+  "@media (max-width: 480px)": {
+    fontSize: "2rem",
+  },
 });
 
 const StatLabel = styled("div", {

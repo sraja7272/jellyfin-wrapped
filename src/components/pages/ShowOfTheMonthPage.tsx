@@ -101,9 +101,29 @@ const Subtitle = styled("p", {
 const ContentGrid = styled("div", {
   display: "flex",
   flexWrap: "wrap",
-  gap: "1.5rem",
   justifyContent: "center",
-  alignItems: "flex-start",
+  gap: "20px",
+  alignItems: "stretch",
+  
+  "& > *": {
+    width: "calc(50% - 10px)",
+    maxWidth: "200px",
+    minWidth: "140px",
+  },
+  
+  "@media (min-width: 640px)": {
+    "& > *": {
+      width: "calc(33.333% - 14px)",
+      maxWidth: "200px",
+    },
+  },
+  
+  "@media (min-width: 768px)": {
+    "& > *": {
+      width: "calc(25% - 15px)",
+      maxWidth: "200px",
+    },
+  },
 });
 
 const ShowCard = styled("div", {
@@ -113,8 +133,7 @@ const ShowCard = styled("div", {
   border: "1px solid rgba(255, 255, 255, 0.05)",
   borderRadius: "18px",
   overflow: "hidden",
-  width: "280px",
-  flexShrink: 0,
+  width: "100%",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
   transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
 
@@ -124,8 +143,7 @@ const ShowCard = styled("div", {
   },
   
   "@media (max-width: 640px)": {
-    width: "100%",
-    maxWidth: "320px",
+    borderRadius: "14px",
   },
 });
 
@@ -150,6 +168,13 @@ const PlaceholderImage = styled("div", {
   justifyContent: "center",
   background: "linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)",
   color: "#64748b",
+  
+  "@media (max-width: 640px)": {
+    "& svg": {
+      width: "24px",
+      height: "24px",
+    },
+  },
 });
 
 const MonthBadge = styled("div", {
@@ -167,6 +192,14 @@ const MonthBadge = styled("div", {
   fontSize: "0.85rem",
   fontWeight: 600,
   border: "1px solid rgba(0, 240, 255, 0.2)",
+  
+  "@media (max-width: 640px)": {
+    top: "8px",
+    right: "8px",
+    padding: "6px 10px",
+    fontSize: "0.75rem",
+    gap: "4px",
+  },
 });
 
 const CardContent = styled("div", {
@@ -174,6 +207,11 @@ const CardContent = styled("div", {
   display: "flex",
   flexDirection: "column",
   gap: "6px",
+  
+  "@media (max-width: 640px)": {
+    padding: "12px 14px 16px",
+    gap: "4px",
+  },
 });
 
 const MonthLabel = styled("span", {
@@ -182,6 +220,10 @@ const MonthLabel = styled("span", {
   fontWeight: 600,
   textTransform: "uppercase",
   letterSpacing: "0.05em",
+  
+  "@media (max-width: 640px)": {
+    fontSize: "0.7rem",
+  },
 });
 
 const ShowTitle = styled("h3", {
@@ -194,6 +236,11 @@ const ShowTitle = styled("h3", {
   WebkitLineClamp: 2,
   WebkitBoxOrient: "vertical",
   overflow: "hidden",
+  
+  "@media (max-width: 640px)": {
+    fontSize: "0.95rem",
+    WebkitLineClamp: 2,
+  },
 });
 
 const WatchTime = styled("div", {
@@ -204,7 +251,17 @@ const WatchTime = styled("div", {
   color: "#94a3b8",
   marginTop: "4px",
   
+  "@media (max-width: 640px)": {
+    fontSize: "0.8rem",
+    gap: "4px",
+  },
+  
   "& svg": {
     color: "#64748b",
+    
+    "@media (max-width: 640px)": {
+      width: "12px",
+      height: "12px",
+    },
   },
 });

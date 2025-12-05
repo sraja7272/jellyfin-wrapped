@@ -39,12 +39,12 @@ export default function ShowReviewPage() {
   return (
     <PageContainer>
       <Container size="4" p="4">
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "clamp(1.5rem, 3vw, 2rem)" }}>
           <div style={{ textAlign: "center" }}>
             <Title as={motion.h1} variants={itemVariants}>
               You Watched {visibleShows.length} Shows
             </Title>
-            <p style={{ fontSize: "1.125rem", color: "#94a3b8", marginTop: "0.5rem" }}>
+            <p style={{ fontSize: "clamp(1rem, 2vw, 1.125rem)", color: "#94a3b8", marginTop: "0.5rem" }}>
               {getShowMessage(visibleShows.length, totalEpisodes)}
             </p>
           </div>

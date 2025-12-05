@@ -33,7 +33,7 @@ export default function OldestShowPage() {
   return (
     <PageContainer>
       <Container size="4" p="4">
-        <Grid gap="6">
+        <Grid gap="3">
           <div style={{ textAlign: "center" }}>
             <Title as={motion.h1} variants={itemVariants}>
               Oldest Show You Watched
@@ -46,17 +46,15 @@ export default function OldestShowPage() {
             </Subtitle>
           </div>
 
-          <Grid
-            columns={{ initial: "1", sm: "1", md: "1", lg: "1" }}
-            gap="4"
-            style={{ justifyItems: "center" }}
-          >
-            <MovieCard
-              item={show.item}
-              episodeCount={show.episodeCount}
-              playbackTime={show.playbackTime}
-            />
-          </Grid>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ maxWidth: "200px", width: "100%" }}>
+              <MovieCard
+                item={show.item}
+                episodeCount={show.episodeCount}
+                playbackTime={show.playbackTime}
+              />
+            </div>
+          </div>
         </Grid>
       </Container>
     </PageContainer>

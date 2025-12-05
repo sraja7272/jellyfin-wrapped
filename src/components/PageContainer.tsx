@@ -165,6 +165,10 @@ const ContentArea = styled("div", {
   paddingBottom: "8rem",
   position: "relative",
   zIndex: 1,
+  
+  "@media (max-width: 768px)": {
+    paddingBottom: "6rem",
+  },
 });
 
 export default PageContainer;

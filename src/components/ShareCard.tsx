@@ -13,7 +13,6 @@ interface ShareCardProps {
 export function ShareCard({ title, children, filename }: ShareCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [generatingButton, setGeneratingButton] = useState<"download" | "copy" | "share" | null>(null);
-  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleDownload = async () => {
@@ -37,8 +36,6 @@ export function ShareCard({ title, children, filename }: ShareCardProps) {
     setError(null);
     try {
       await copyImageToClipboard(cardRef.current);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error("Failed to copy image:", error);
       setError("Failed to copy image. Please try again.");
@@ -73,30 +70,21 @@ export function ShareCard({ title, children, filename }: ShareCardProps) {
           {generatingButton === "download" ? (
             <Spinner />
           ) : (
-            <>
-              <Download size={18} />
-              <span>Download</span>
-            </>
+            <Download size={18} />
           )}
         </ActionButton>
         <ActionButton onClick={handleCopy} disabled={generatingButton !== null}>
           {generatingButton === "copy" ? (
             <Spinner />
           ) : (
-            <>
-              <Copy size={18} />
-              <span>{copied ? "Copied!" : "Copy"}</span>
-            </>
+            <Copy size={18} />
           )}
         </ActionButton>
         <ActionButton onClick={handleShare} disabled={generatingButton !== null}>
           {generatingButton === "share" ? (
             <Spinner />
           ) : (
-            <>
-              <Share2 size={18} />
-              <span>Share</span>
-            </>
+            <Share2 size={18} />
           )}
         </ActionButton>
       </Actions>
@@ -111,6 +99,13 @@ const CardContainer = styled("div", {
   display: "flex",
   flexDirection: "column",
   gap: "1.5rem",
+  width: "100%",
+  alignItems: "center",
+  
+  "@media (max-width: 768px)": {
+    width: "90vw", // Match the card slide width
+    alignItems: "center",
+  },
 });
 
 const CardContent = styled("div", {
@@ -130,12 +125,30 @@ const CardContent = styled("div", {
   boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
   // Ensure fonts are loaded
   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  
+  "@media (max-width: 768px)": {
+    width: "calc(95vw - 2rem)", // 95% of viewport width minus padding (5% smaller)
+    maxWidth: "calc(95vw - 2rem)",
+    height: "auto",
+    minHeight: "600px",
+    padding: "2rem",
+  },
 });
 
 const Actions = styled("div", {
   display: "flex",
   gap: "1rem",
   justifyContent: "center",
+  width: "400px",
+  maxWidth: "400px",
+  boxSizing: "border-box",
+  
+  "@media (max-width: 768px)": {
+    width: "calc(90vw - 2rem)", // Match card width exactly (90vw - padding from card)
+    maxWidth: "calc(90vw - 2rem)",
+    gap: "0.5rem",
+    boxSizing: "border-box",
+  },
 });
 
 const ActionButton = styled("button", {
@@ -164,6 +177,14 @@ const ActionButton = styled("button", {
   "&:disabled": {
     opacity: 0.5,
     cursor: "not-allowed",
+  },
+  
+  "@media (max-width: 768px)": {
+    flex: 1, // Take up equal space
+    width: "auto",
+    minWidth: 0, // Allow flex items to shrink below their content size
+    padding: "0.75rem",
+    gap: "0",
   },
 });
 

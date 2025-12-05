@@ -210,6 +210,10 @@ export default function ActivityCalendarPage() {
 const HeaderSection = styled("div", {
   textAlign: "center",
   marginBottom: "1rem",
+  
+  "@media (max-width: 768px)": {
+    marginBottom: "0.75rem",
+  },
 });
 
 const Subtitle = styled("p", {
@@ -224,6 +228,10 @@ const PeakInfo = styled("div", {
   background: "rgba(0, 240, 255, 0.05)",
   borderRadius: "16px",
   border: "1px solid rgba(0, 240, 255, 0.1)",
+  
+  "@media (max-width: 768px)": {
+    padding: "16px",
+  },
 });
 
 const PeakLabel = styled("span", {
@@ -258,10 +266,23 @@ const ChartCard = styled("div", {
   padding: "24px",
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
   overflowX: "auto",
+  
+  "@media (max-width: 768px)": {
+    padding: "16px",
+    borderRadius: "12px",
+  },
 });
 
 const ChartContainer = styled("div", {
   minWidth: "700px",
+  
+  "@media (max-width: 768px)": {
+    minWidth: "600px",
+  },
+  
+  "@media (max-width: 640px)": {
+    minWidth: "500px",
+  },
 });
 
 const HourLabels = styled("div", {
@@ -341,6 +362,11 @@ const PersonalityCard = styled("div", {
   borderRadius: "16px",
   border: "1px solid rgba(168, 85, 247, 0.1)",
   marginBottom: "1.5rem",
+  
+  "@media (max-width: 768px)": {
+    padding: "16px",
+    marginBottom: "1rem",
+  },
 });
 
 const PersonalityLabel = styled("span", {
@@ -372,6 +398,11 @@ const BreakdownGrid = styled("div", {
   gridTemplateColumns: "repeat(4, 1fr)",
   gap: "12px",
   marginTop: "16px",
+  
+  "@media (max-width: 640px)": {
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "8px",
+  },
 });
 
 const BreakdownItem = styled("div", {

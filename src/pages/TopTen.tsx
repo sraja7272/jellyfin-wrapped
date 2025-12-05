@@ -107,7 +107,9 @@ export const TopTen = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <ContentImage item={movie} />
+                      <QuizImageWrapper>
+                        <ContentImage item={movie} />
+                      </QuizImageWrapper>
                       <QuizOptionName>{movie.name}</QuizOptionName>
                     </QuizOption>
                   ))}
@@ -136,7 +138,9 @@ export const TopTen = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <ContentImage item={show} />
+                      <QuizImageWrapper>
+                        <ContentImage item={show} />
+                      </QuizImageWrapper>
                       <QuizOptionName>{show.name}</QuizOptionName>
                     </QuizOption>
                   ))}
@@ -342,6 +346,11 @@ const HeaderSection = styled("div", {
   textAlign: "center",
   marginBottom: "1.5rem",
   paddingTop: "3rem",
+  
+  "@media (max-width: 768px)": {
+    paddingTop: "2rem",
+    marginBottom: "1rem",
+  },
 });
 
 const HeaderBadge = styled("div", {
@@ -396,6 +405,11 @@ const SectionCard = styled("div", {
   padding: "32px",
   position: "relative",
   overflow: "hidden",
+  
+  "@media (max-width: 768px)": {
+    padding: "24px 20px",
+    borderRadius: "24px",
+  },
 });
 
 const CardAccent = styled("div", {
@@ -560,6 +574,12 @@ const QuizCard = styled("div", {
   padding: "3rem",
   textAlign: "center",
   marginTop: "2rem",
+  
+  "@media (max-width: 768px)": {
+    padding: "2rem 1.5rem",
+    marginTop: "1.5rem",
+    borderRadius: "20px",
+  },
 });
 
 const QuizTitle = styled("h2", {
@@ -567,6 +587,11 @@ const QuizTitle = styled("h2", {
   fontWeight: 700,
   color: "#f8fafc",
   marginBottom: "2rem",
+  
+  "@media (max-width: 768px)": {
+    fontSize: "1.5rem",
+    marginBottom: "1.5rem",
+  },
 });
 
 const QuizOptions = styled("div", {
@@ -574,6 +599,11 @@ const QuizOptions = styled("div", {
   gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
   gap: "1.5rem",
   marginBottom: "2rem",
+  
+  "@media (max-width: 640px)": {
+    gridTemplateColumns: "1fr",
+    gap: "1rem",
+  },
 });
 
 const QuizOption = styled("button", {
@@ -593,10 +623,25 @@ const QuizOption = styled("button", {
     borderColor: "rgba(0, 240, 255, 0.3)",
     transform: "translateY(-4px)",
   },
+});
+
+const QuizImageWrapper = styled("div", {
+  width: "120px",
+  height: "180px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "8px",
+  overflow: "hidden",
+  
+  "& > *": {
+    width: "100%",
+    height: "100%",
+  },
   
   "& img": {
-    width: "120px",
-    height: "180px",
+    width: "100%",
+    height: "100%",
     objectFit: "cover",
     borderRadius: "8px",
   },
@@ -635,6 +680,13 @@ const QuizResultsMessage = styled("div", {
   fontSize: "1.25rem",
   fontWeight: 600,
   color: "#00f0ff",
+  
+  "@media (max-width: 768px)": {
+    padding: "1.25rem 1.5rem",
+    fontSize: "1.1rem",
+    marginTop: "1rem",
+    marginBottom: "1rem",
+  },
 });
 
 const TopBadge = styled("span", {
