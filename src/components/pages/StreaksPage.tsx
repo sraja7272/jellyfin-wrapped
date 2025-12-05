@@ -118,7 +118,7 @@ const ContentWrapper = styled("div", {
   justifyContent: "center",
   minHeight: "calc(100vh - 8rem)",
   textAlign: "center",
-  padding: "3rem 1rem 2rem",
+  padding: "0.75rem 1rem 0.25rem 1rem",
   width: "100%",
   maxWidth: "100%",
   margin: "0 auto",
@@ -136,7 +136,7 @@ const Badge = styled("div", {
   fontSize: "0.85rem",
   fontWeight: 600,
   color: "#00f0ff",
-  marginBottom: "2rem",
+  marginBottom: "1rem",
   backdropFilter: "blur(12px)",
 });
 
@@ -153,7 +153,7 @@ const BadgeIcon = styled("span", {
 const Title = styled("h1", {
   fontSize: "clamp(2rem, 6vw, 3.5rem)",
   fontWeight: 700,
-  marginBottom: "3rem",
+  marginBottom: "1.5rem",
   letterSpacing: "-0.04em",
   background: "linear-gradient(135deg, #f8fafc 0%, #00f0ff 50%, #a855f7 100%)",
   backgroundSize: "200% 200%",
@@ -168,10 +168,10 @@ const Title = styled("h1", {
 const StatsGrid = styled("div", {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-  gap: "2rem",
+  gap: "1.5rem",
   width: "100%",
   maxWidth: "900px",
-  marginBottom: "3rem",
+  marginBottom: "1rem",
 });
 
 const StatCard = styled("div", {
@@ -233,7 +233,8 @@ const Message = styled("p", {
   color: "#f8fafc",
   maxWidth: "600px",
   lineHeight: 1.6,
-  marginTop: "1rem",
+  marginTop: "0.5rem",
+  marginBottom: "0.5rem",
   marginLeft: "auto",
   marginRight: "auto",
   textAlign: "center",

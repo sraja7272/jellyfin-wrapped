@@ -134,10 +134,24 @@ export async function copyImageToClipboard(element: HTMLElement): Promise<void> 
     try {
       // Check if Clipboard API is available
       if (!navigator.clipboard || !window.ClipboardItem) {
-        // Fallback for browsers without Clipboard API
+        // Fallback for browsers without Clipboard API - use execCommand as last resort
         const dataUrl = await toPng(clonedElement, getImageOptions());
-        await navigator.clipboard.writeText(dataUrl);
-        console.warn("Clipboard API not fully supported, copied as text");
+        // Create a temporary textarea to use execCommand
+        const textarea = document.createElement('textarea');
+        textarea.value = dataUrl;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          console.warn("Clipboard API not available, used execCommand fallback");
+        } catch (err) {
+          console.error("Failed to copy to clipboard:", err);
+          throw new Error("Clipboard API not supported and execCommand failed");
+        } finally {
+          document.body.removeChild(textarea);
+        }
         return;
       }
 

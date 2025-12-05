@@ -706,14 +706,17 @@ export async function getStreakStats(
   
   let checkDate = new Date(today);
   let consecutiveDays = 0;
+  let lastValidDate: Date | null = null;
   while (sortedDays.includes(checkDate.toISOString().split('T')[0])) {
     consecutiveDays++;
-    if (consecutiveDays === 1) {
-      streakStartDate = checkDate.toISOString().split('T')[0];
-    }
+    lastValidDate = new Date(checkDate);
     checkDate.setDate(checkDate.getDate() - 1);
   }
   currentStreak = consecutiveDays;
+  // Set streak start date to the earliest date in the consecutive sequence
+  if (lastValidDate && consecutiveDays > 0) {
+    streakStartDate = lastValidDate.toISOString().split('T')[0];
+  }
 
   // Calculate longest streak and longest break
   let currentStreakLength = 1;

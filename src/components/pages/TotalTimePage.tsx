@@ -6,7 +6,6 @@ import PageContainer from "../PageContainer";
 import { Container } from "@radix-ui/themes";
 import { motion } from "framer-motion";
 import { styled } from "@stitches/react";
-import { Clock, Sparkles, TrendingUp } from "lucide-react";
 import { formatWatchTime } from "@/lib/time-helpers";
 
 // Fun messages based on total watch time
@@ -47,7 +46,7 @@ function getWatchTimeMessage(totalMinutes: number): { message: string; emoji: st
   } else if (totalHours >= 12) {
     return {
       message: "Half a day of entertainment. Nice start!",
-      emoji: "📱"
+      emoji: "✨"
     };
   } else {
     return {
@@ -98,20 +97,8 @@ export default function TotalTimePage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <BadgeIcon>
-              <Sparkles size={14} />
-            </BadgeIcon>
             <span>Your Year in Review</span>
           </Badge>
-
-          <EmojiDisplay
-            as={motion.div}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.6, type: "spring", bounce: 0.4 }}
-          >
-            {emoji}
-          </EmojiDisplay>
 
           <Title
             as={motion.h1}
@@ -129,9 +116,6 @@ export default function TotalTimePage() {
             transition={{ delay: 0.8, duration: 0.6, type: "spring" }}
           >
             <TimeValue>{formatWatchTime(totalWatchTime)}</TimeValue>
-            <TimeIcon>
-              <Clock size={32} />
-            </TimeIcon>
           </TimeDisplay>
 
           {totalDays >= 1 && (
@@ -167,24 +151,13 @@ export default function TotalTimePage() {
             {message}
           </Message>
 
-          <FunFact
-            as={motion.div}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4, duration: 0.6 }}
-          >
-            <TrendingUp size={16} />
-            <span>That's {Math.round(totalWatchTime / 60)} hours of pure entertainment!</span>
-          </FunFact>
-
           {comparisons && comparisons.comparisons.length > 0 && (
             <ComparisonsSection
               as={motion.div}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.6, duration: 0.6 }}
+              transition={{ delay: 1.4, duration: 0.6 }}
             >
-              <ComparisonsTitle>Fun Comparisons</ComparisonsTitle>
               <ComparisonsGrid>
                 {comparisons.comparisons.map((comparison, index) => (
                   <ComparisonCard
@@ -212,9 +185,9 @@ const ContentWrapper = styled("div", {
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  minHeight: "100vh",
+  minHeight: "calc(100vh - 8rem)",
   textAlign: "center",
-  padding: "3rem 1rem",
+  padding: "0.75rem 1rem 0.25rem 1rem",
   width: "100%",
   maxWidth: "100%",
   margin: "0 auto",
@@ -232,7 +205,7 @@ const Badge = styled("div", {
   fontSize: "0.85rem",
   fontWeight: 600,
   color: "#00f0ff",
-  marginBottom: "2rem",
+  marginBottom: "1rem",
   backdropFilter: "blur(12px)",
 });
 
@@ -246,16 +219,10 @@ const BadgeIcon = styled("span", {
   background: "rgba(0, 240, 255, 0.15)",
 });
 
-const EmojiDisplay = styled("div", {
-  fontSize: "6rem",
-  marginBottom: "1.5rem",
-  filter: "drop-shadow(0 8px 32px rgba(0, 240, 255, 0.3))",
-});
-
 const Title = styled("h1", {
   fontSize: "clamp(2rem, 6vw, 3.5rem)",
   fontWeight: 700,
-  marginBottom: "2rem",
+  marginBottom: "1rem",
   letterSpacing: "-0.04em",
   background: "linear-gradient(135deg, #f8fafc 0%, #00f0ff 50%, #a855f7 100%)",
   backgroundSize: "200% 200%",
@@ -272,7 +239,7 @@ const TimeDisplay = styled("div", {
   alignItems: "center",
   justifyContent: "center",
   gap: "1.5rem",
-  marginBottom: "2rem",
+  marginBottom: "1rem",
   flexWrap: "wrap",
   width: "100%",
   maxWidth: "100%",
@@ -289,25 +256,12 @@ const TimeValue = styled("div", {
   lineHeight: 1.2,
 });
 
-const TimeIcon = styled("div", {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "80px",
-  height: "80px",
-  borderRadius: "20px",
-  background: "linear-gradient(135deg, rgba(0, 240, 255, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%)",
-  border: "1px solid rgba(0, 240, 255, 0.2)",
-  color: "#00f0ff",
-  backdropFilter: "blur(12px)",
-});
-
 const StatsRow = styled("div", {
   display: "flex",
   alignItems: "center",
   gap: "2rem",
-  marginBottom: "2.5rem",
-  padding: "1.5rem 2rem",
+  marginBottom: "1rem",
+  padding: "1rem 1.5rem",
   background: "rgba(18, 21, 28, 0.5)",
   borderRadius: "20px",
   border: "1px solid rgba(255, 255, 255, 0.05)",
@@ -348,37 +302,17 @@ const Message = styled("p", {
   color: "#f8fafc",
   maxWidth: "600px",
   lineHeight: 1.6,
-  marginBottom: "1.5rem",
+  marginBottom: "1rem",
   marginLeft: "auto",
   marginRight: "auto",
   textAlign: "center",
 });
 
-const FunFact = styled("div", {
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-  padding: "1rem 1.5rem",
-  background: "rgba(168, 85, 247, 0.1)",
-  border: "1px solid rgba(168, 85, 247, 0.2)",
-  borderRadius: "12px",
-  fontSize: "0.95rem",
-  color: "#c084fc",
-  fontWeight: 500,
-});
-
 const ComparisonsSection = styled("div", {
   width: "100%",
   maxWidth: "900px",
-  marginTop: "3rem",
-});
-
-const ComparisonsTitle = styled("h2", {
-  fontSize: "1.5rem",
-  fontWeight: 700,
-  color: "#f8fafc",
-  marginBottom: "1.5rem",
-  textAlign: "center",
+  marginTop: "1rem",
+  marginBottom: "0.5rem",
 });
 
 const ComparisonsGrid = styled("div", {
