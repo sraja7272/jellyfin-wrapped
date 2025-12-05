@@ -53,13 +53,48 @@ function getCorsOrigins(): string[] {
 }
 
 // Register plugins
+// CORS configuration: When credentials are enabled, we must echo back the exact origin
+// (not use '*'), but only if it's in our allowed list. The plugin handles this automatically.
 await fastify.register(cors, {
-  origin: getCorsOrigins(),
+  origin: (origin, callback) => {
+    const allowedOrigins = getCorsOrigins();
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    // Only allow origins from our whitelist
+    if (allowedOrigins.includes(origin)) {
+      // Plugin will automatically set Access-Control-Allow-Origin to this exact origin
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'), false);
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type'],
 });
 
 await fastify.register(jwt, {
   secret: JWT_SECRET,
+});
+
+// Add hook to ensure CORS headers are set on error responses
+// The CORS plugin handles normal responses, but errors might bypass it
+fastify.addHook('onSend', async (request, reply) => {
+  const origin = request.headers.origin;
+  const allowedOrigins = getCorsOrigins();
+  
+  // Only set CORS headers if origin is in our allowed list
+  // This ensures we never echo back an unauthorized origin
+  if (origin && allowedOrigins.includes(origin)) {
+    // Set the exact origin (required when credentials: true)
+    reply.header('Access-Control-Allow-Origin', origin);
+    reply.header('Access-Control-Allow-Credentials', 'true');
+    reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
 });
 
 // Decorate fastify with config
