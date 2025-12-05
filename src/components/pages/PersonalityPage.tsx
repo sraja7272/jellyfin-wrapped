@@ -1,7 +1,6 @@
 import { usePersonality } from "@/hooks/queries/usePersonality";
 import { LoadingSpinner } from "../LoadingSpinner";
 import PageContainer from "../PageContainer";
-import { Container } from "@radix-ui/themes";
 import { motion } from "framer-motion";
 import { styled } from "@stitches/react";
 import { Sparkles, Star } from "lucide-react";

@@ -3,7 +3,6 @@ import { useData } from "@/contexts/DataContext";
 import { useComparisons } from "@/hooks/queries/useComparisons";
 import { LoadingSpinner } from "../LoadingSpinner";
 import PageContainer from "../PageContainer";
-import { Container } from "@radix-ui/themes";
 import { motion } from "framer-motion";
 import { styled } from "@stitches/react";
 import { formatWatchTime } from "@/lib/time-helpers";
@@ -79,7 +78,7 @@ export default function TotalTimePage() {
     return <LoadingSpinner />;
   }
 
-  const { message, emoji } = getWatchTimeMessage(totalWatchTime);
+  const { message } = getWatchTimeMessage(totalWatchTime);
   const totalHours = totalWatchTime / 60;
   const totalDays = totalHours / 24;
 
@@ -207,16 +206,6 @@ const Badge = styled("div", {
   color: "#00f0ff",
   marginBottom: "1rem",
   backdropFilter: "blur(12px)",
-});
-
-const BadgeIcon = styled("span", {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "24px",
-  height: "24px",
-  borderRadius: "7px",
-  background: "rgba(0, 240, 255, 0.15)",
 });
 
 const Title = styled("h1", {
