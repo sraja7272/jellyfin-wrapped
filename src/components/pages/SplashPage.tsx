@@ -12,7 +12,7 @@ import {
 } from "../ui/styled";
 import TimeframeSelector from "../TimeframeSelector";
 import { TimeframeOption } from "../../lib/timeframe";
-import { Film, BarChart3, Sparkles, Play, Star, Tv } from "lucide-react";
+import { Film, BarChart3, Play, Star, Tv } from "lucide-react";
 import { styled } from "@stitches/react";
 
 const NEXT_PAGE = "/configure";
@@ -427,56 +427,6 @@ const Particle = styled("div", {
   boxShadow: "0 0 8px currentColor",
 });
 
-const LogoBadge = styled("div", {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "10px",
-  padding: "12px 24px",
-  background: "rgba(0, 240, 255, 0.06)",
-  border: "1px solid rgba(0, 240, 255, 0.15)",
-  borderRadius: "999px",
-  fontSize: "0.9rem",
-  fontWeight: 600,
-  color: "#00f0ff",
-  marginBottom: "2.5rem",
-  backdropFilter: "blur(12px)",
-  position: "relative",
-  overflow: "hidden",
-  
-  "@media (max-width: 768px)": {
-    padding: "10px 20px",
-    fontSize: "0.85rem",
-    marginBottom: "1.5rem",
-  },
-  
-  "@media (max-width: 480px)": {
-    padding: "8px 16px",
-    fontSize: "0.8rem",
-    marginBottom: "1.25rem",
-  },
-});
-
-const BadgeIcon = styled("span", {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "26px",
-  height: "26px",
-  borderRadius: "8px",
-  background: "linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 240, 255, 0.1) 100%)",
-});
-
-const BadgeGlow = styled("div", {
-  position: "absolute",
-  top: "50%",
-  left: "-20%",
-  width: "140%",
-  height: "200%",
-  background: "linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.1), transparent)",
-  transform: "translateY(-50%) rotate(-15deg)",
-  animation: "shimmer 3s ease-in-out infinite",
-  pointerEvents: "none",
-});
 
 const FeatureIcon = styled("span", {
   display: "flex",

@@ -367,25 +367,6 @@ const StyledInput = styled("input", {
   },
 });
 
-const InputHint = styled("p", {
-  fontSize: "0.75rem",
-  color: "#475569",
-  marginTop: "10px",
-});
-
-const ServerDisplay = styled("div", {
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  padding: "16px 20px",
-  background: "rgba(16, 185, 129, 0.06)",
-  border: "1px solid rgba(16, 185, 129, 0.12)",
-  borderRadius: "14px",
-  fontSize: "0.9rem",
-  color: "#10b981",
-  fontFamily: "'JetBrains Mono', monospace",
-});
-
 const SubmitButton = styled("button", {
   width: "100%",
   display: "flex",

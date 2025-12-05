@@ -13,7 +13,6 @@ interface ShareCardProps {
 export function ShareCard({ title, children, filename }: ShareCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [generatingButton, setGeneratingButton] = useState<"download" | "copy" | "share" | null>(null);
-  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleDownload = async () => {
@@ -37,8 +36,6 @@ export function ShareCard({ title, children, filename }: ShareCardProps) {
     setError(null);
     try {
       await copyImageToClipboard(cardRef.current);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error("Failed to copy image:", error);
       setError("Failed to copy image. Please try again.");
