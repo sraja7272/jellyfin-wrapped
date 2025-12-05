@@ -12,6 +12,12 @@ import {
   UnfinishedShow,
   ActorStats,
   Timeframe,
+  StreakStats,
+  TimePersonality,
+  DecadeBreakdown,
+  WatchEvolution,
+  ViewingPersonality,
+  FunComparisons,
 } from '../types.js';
 import { JellyfinConfig, executeSqlQuery, getItemsByIds, getShowEpisodeStats } from './jellyfin.js';
 
@@ -647,4 +653,552 @@ export async function getWatchedOnDate(
 
   return [...movies, ...shows];
 }
+
+// Get streak statistics
+export async function getStreakStats(
+  config: JellyfinConfig,
+  timeframe: Timeframe
+): Promise<StreakStats> {
+  const query = `
+    SELECT
+      date(DateCreated) as day,
+      COUNT(*) as count
+    FROM PlaybackActivity
+    WHERE UserId = "${config.userId}"
+    AND DateCreated > '${timeframe.startDate}'
+    AND DateCreated <= '${timeframe.endDate}'
+    GROUP BY date(DateCreated)
+    ORDER BY day
+  `;
+
+  const data = await executeSqlQuery(config, query);
+  const dayIndex = data.colums.findIndex((i) => i === 'day');
+  const countIndex = data.colums.findIndex((i) => i === 'count');
+
+  const watchedDays = new Set<string>();
+  data.results.forEach((row) => {
+    if (parseInt(row[countIndex]) > 0) {
+      watchedDays.add(row[dayIndex]);
+    }
+  });
+
+  if (watchedDays.size === 0) {
+    return {
+      longestStreak: 0,
+      longestBreak: 0,
+      currentStreak: 0,
+    };
+  }
+
+  // Convert to sorted array of dates
+  const sortedDays = Array.from(watchedDays).sort();
+  
+  // Calculate streaks
+  let longestStreak = 1;
+  let currentStreak = 0;
+  let longestBreak = 0;
+  let streakStartDate: string | undefined;
+
+  // Check current streak (from end)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().split('T')[0];
+  
+  let checkDate = new Date(today);
+  let consecutiveDays = 0;
+  while (sortedDays.includes(checkDate.toISOString().split('T')[0])) {
+    consecutiveDays++;
+    if (consecutiveDays === 1) {
+      streakStartDate = checkDate.toISOString().split('T')[0];
+    }
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+  currentStreak = consecutiveDays;
+
+  // Calculate longest streak and longest break
+  let currentStreakLength = 1;
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prevDate = new Date(sortedDays[i - 1]);
+    const currDate = new Date(sortedDays[i]);
+    const diffDays = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+      currentStreakLength++;
+      longestStreak = Math.max(longestStreak, currentStreakLength);
+    } else {
+      currentStreakLength = 1;
+      if (diffDays > 1) {
+        longestBreak = Math.max(longestBreak, diffDays - 1);
+      }
+    }
+  }
+
+  return {
+    longestStreak,
+    longestBreak,
+    currentStreak,
+    streakStartDate,
+  };
+}
+
+// Get time-of-day personality
+export async function getTimePersonality(
+  config: JellyfinConfig,
+  timeframe: Timeframe
+): Promise<TimePersonality> {
+  const query = `
+    SELECT
+      strftime('%H', DateCreated) as hour,
+      COUNT(*) as count
+    FROM PlaybackActivity
+    WHERE UserId = "${config.userId}"
+    AND DateCreated > '${timeframe.startDate}'
+    AND DateCreated <= '${timeframe.endDate}'
+    GROUP BY hour
+  `;
+
+  const data = await executeSqlQuery(config, query);
+  const hourIndex = data.colums.findIndex((i) => i === 'hour');
+  const countIndex = data.colums.findIndex((i) => i === 'count');
+
+  let totalCount = 0;
+  const hourCounts: Record<number, number> = {};
+  
+  data.results.forEach((row) => {
+    const hour = parseInt(row[hourIndex]);
+    const count = parseInt(row[countIndex]);
+    hourCounts[hour] = count;
+    totalCount += count;
+  });
+
+  // Calculate percentages for each time slot
+  let earlyBird = 0; // 0-8
+  let dayWatcher = 0; // 9-16
+  let primeTimer = 0; // 17-21
+  let nightOwl = 0; // 22-23
+
+  for (let hour = 0; hour < 24; hour++) {
+    const count = hourCounts[hour] || 0;
+    if (hour >= 0 && hour < 9) {
+      earlyBird += count;
+    } else if (hour >= 9 && hour < 17) {
+      dayWatcher += count;
+    } else if (hour >= 17 && hour < 22) {
+      primeTimer += count;
+    } else {
+      nightOwl += count;
+    }
+  }
+
+  const breakdown = {
+    earlyBird: totalCount > 0 ? Math.round((earlyBird / totalCount) * 100) : 0,
+    dayWatcher: totalCount > 0 ? Math.round((dayWatcher / totalCount) * 100) : 0,
+    primeTimer: totalCount > 0 ? Math.round((primeTimer / totalCount) * 100) : 0,
+    nightOwl: totalCount > 0 ? Math.round((nightOwl / totalCount) * 100) : 0,
+  };
+
+  // Determine personality
+  const maxCategory = Math.max(breakdown.earlyBird, breakdown.dayWatcher, breakdown.primeTimer, breakdown.nightOwl);
+  let personality = 'Prime Timer';
+  let peakTime = '5pm-10pm';
+
+  if (breakdown.earlyBird === maxCategory) {
+    personality = 'Early Bird';
+    peakTime = 'Before 9am';
+  } else if (breakdown.dayWatcher === maxCategory) {
+    personality = 'Day Watcher';
+    peakTime = '9am-5pm';
+  } else if (breakdown.primeTimer === maxCategory) {
+    personality = 'Prime Timer';
+    peakTime = '5pm-10pm';
+  } else {
+    personality = 'Night Owl';
+    peakTime = 'After 10pm';
+  }
+
+  return {
+    personality,
+    breakdown,
+    peakTime,
+  };
+}
+
+// Get decade breakdown
+export async function getDecadeBreakdown(
+  config: JellyfinConfig,
+  timeframe: Timeframe
+): Promise<DecadeBreakdown> {
+  const movies = await listMovies(config, timeframe);
+  const shows = await listShows(config, timeframe);
+
+  const allItems = [
+    ...movies,
+    ...shows.map((s) => s.item),
+  ];
+
+  // Group by time period
+  const periods: Record<string, number> = {
+    'Pre-2000': 0,
+    '2000–2010': 0,
+    '2010–2020': 0,
+    '2020–Now': 0,
+  };
+
+  let totalYear = 0;
+  let yearCount = 0;
+
+  allItems.forEach((item) => {
+    const year = item.productionYear;
+    if (!year) return;
+
+    totalYear += year;
+    yearCount++;
+
+    if (year < 2000) {
+      periods['Pre-2000']++;
+    } else if (year >= 2000 && year < 2010) {
+      periods['2000–2010']++;
+    } else if (year >= 2010 && year < 2020) {
+      periods['2010–2020']++;
+    } else {
+      periods['2020–Now']++;
+    }
+  });
+
+  const total = allItems.length;
+  const periodBreakdown = Object.entries(periods).map(([period, count]) => ({
+    period,
+    count,
+    percentage: total > 0 ? Math.round((count / total) * 100) : 0,
+  }));
+
+  const averageYear = yearCount > 0 ? Math.round(totalYear / yearCount) : 0;
+  const topPeriod = periodBreakdown.reduce((max, p) => (p.count > max.count ? p : max), periodBreakdown[0]).period;
+
+  // Determine personality and message
+  let personality = '';
+  let message = '';
+
+  if (topPeriod === 'Pre-2000') {
+    personality = 'Classic Lover';
+    message = "Living in the past. You probably complain that 'they don't make 'em like this anymore' (spoiler: they do).";
+  } else if (topPeriod === '2000–2010') {
+    personality = 'Questionable Taste';
+    message = "You have questionable taste. This was the decade that decided Shrek was a masterpiece. (Okay, fair point).";
+  } else if (topPeriod === '2010–2020') {
+    personality = 'Zero Adventurousness';
+    message = "Zero adventurousness detected. You watched the same stuff everyone else watched 5 years ago.";
+  } else {
+    personality = 'Recency Bias';
+    message = "Recency Bias: The Diagnosis. You have the object permanence of a goldfish—if it's not new, it doesn't exist.";
+  }
+
+  return {
+    periodBreakdown,
+    averageYear,
+    topPeriod,
+    personality,
+    message,
+  };
+}
+
+// Get watch evolution
+export async function getWatchEvolution(
+  config: JellyfinConfig,
+  timeframe: Timeframe
+): Promise<WatchEvolution> {
+  // Get monthly watch time
+  const monthlyQuery = `
+    SELECT
+      strftime('%Y-%m', DateCreated) as month,
+      SUM(PlayDuration) as totalDuration
+    FROM PlaybackActivity
+    WHERE UserId = "${config.userId}"
+    AND DateCreated > '${timeframe.startDate}'
+    AND DateCreated <= '${timeframe.endDate}'
+    GROUP BY month
+    ORDER BY month
+  `;
+
+  const monthlyData = await executeSqlQuery(config, monthlyQuery);
+  const monthIndex = monthlyData.colums.findIndex((i) => i === 'month');
+  const durationIndex = monthlyData.colums.findIndex((i) => i === 'totalDuration');
+
+  // Get movies and shows for genre analysis
+  const movies = await listMovies(config, timeframe);
+  const shows = await listShows(config, timeframe);
+
+  // Get genre data by month
+  const genreQuery = `
+    SELECT
+      strftime('%Y-%m', DateCreated) as month,
+      ItemId
+    FROM PlaybackActivity
+    WHERE UserId = "${config.userId}"
+    AND (ItemType = "Movie" OR ItemType = "Episode")
+    AND DateCreated > '${timeframe.startDate}'
+    AND DateCreated <= '${timeframe.endDate}'
+    ORDER BY month
+  `;
+
+  const genreData = await executeSqlQuery(config, genreQuery);
+  const genreMonthIndex = genreData.colums.findIndex((i) => i === 'month');
+  const genreItemIdIndex = genreData.colums.findIndex((i) => i === 'ItemId');
+
+  // Build item map
+  const itemMap = new Map<string, SimpleItemDto>();
+  movies.forEach((m) => {
+    if (m.id) itemMap.set(m.id, m);
+  });
+  shows.forEach((s) => {
+    if (s.item.id) itemMap.set(s.item.id, s.item);
+  });
+
+  // Group by month and count genres
+  const monthGenreMap = new Map<string, Map<string, number>>();
+  genreData.results.forEach((row) => {
+    const month = row[genreMonthIndex];
+    const itemId = row[genreItemIdIndex];
+    const item = itemMap.get(itemId);
+    
+    if (!item || !item.genres) return;
+
+    if (!monthGenreMap.has(month)) {
+      monthGenreMap.set(month, new Map());
+    }
+    const genreMap = monthGenreMap.get(month)!;
+
+    item.genres.forEach((genre) => {
+      genreMap.set(genre, (genreMap.get(genre) || 0) + 1);
+    });
+  });
+
+  // Build monthly data with top genre
+  const monthlyDataResult = monthlyData.results.map((row) => {
+    const month = row[monthIndex];
+    const watchTimeMinutes = Math.round(parseInt(row[durationIndex]) / 60);
+    
+    const genreMap = monthGenreMap.get(month);
+    let topGenre: string | undefined = undefined;
+    if (genreMap && genreMap.size > 0) {
+      const sortedGenres = Array.from(genreMap.entries()).sort((a, b) => b[1] - a[1]);
+      topGenre = sortedGenres[0][0];
+    }
+
+    return {
+      month: `${month}-01T12:00:00.000Z`,
+      watchTimeMinutes,
+      topGenre,
+    };
+  });
+
+  // Build genre evolution
+  const genreEvolution = Array.from(monthGenreMap.entries()).map(([month, genreMap]) => {
+    const genres = Array.from(genreMap.entries())
+      .map(([genre, count]) => ({ genre, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5); // Top 5 genres per month
+
+    return {
+      month: `${month}-01T12:00:00.000Z`,
+      genres,
+    };
+  });
+
+  return {
+    monthlyData: monthlyDataResult,
+    genreEvolution,
+  };
+}
+
+// Get viewing personality
+export async function getPersonality(
+  config: JellyfinConfig,
+  timeframe: Timeframe
+): Promise<ViewingPersonality> {
+  const movies = await listMovies(config, timeframe);
+  const shows = await listShows(config, timeframe);
+  const calendarData = await getCalendarData(config);
+  const punchCardData = await getPunchCardData(config, timeframe);
+
+  // Analyze patterns
+  const totalMovies = movies.length;
+  const totalShows = shows.length;
+  const totalItems = totalMovies + totalShows;
+  const movieRatio = totalItems > 0 ? totalMovies / totalItems : 0;
+
+  // Genre diversity
+  const allGenres = new Set<string>();
+  movies.forEach((m) => m.genres?.forEach((g) => allGenres.add(g)));
+  shows.forEach((s) => s.item.genres?.forEach((g) => allGenres.add(g)));
+  const genreDiversity = allGenres.size;
+
+  // Binge patterns (consecutive days)
+  const watchedDays = new Set(calendarData.map((d) => d.day));
+  let maxConsecutive = 0;
+  let currentConsecutive = 0;
+  const sortedDays = Array.from(watchedDays).sort();
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prevDate = new Date(sortedDays[i - 1]);
+    const currDate = new Date(sortedDays[i]);
+    const diffDays = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      currentConsecutive++;
+      maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
+    } else {
+      currentConsecutive = 0;
+    }
+  }
+
+  // Time preference
+  let nightViewing = 0;
+  let totalViewing = 0;
+  punchCardData.forEach((p) => {
+    totalViewing += p.count;
+    if (p.hour >= 22 || p.hour < 6) {
+      nightViewing += p.count;
+    }
+  });
+  const nightRatio = totalViewing > 0 ? nightViewing / totalViewing : 0;
+
+  // Content age
+  let totalYear = 0;
+  let yearCount = 0;
+  movies.forEach((m) => {
+    if (m.productionYear) {
+      totalYear += m.productionYear;
+      yearCount++;
+    }
+  });
+  shows.forEach((s) => {
+    if (s.item.productionYear) {
+      totalYear += s.item.productionYear;
+      yearCount++;
+    }
+  });
+  const avgYear = yearCount > 0 ? totalYear / yearCount : new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
+  const contentAge = currentYear - avgYear;
+
+  // Determine personality
+  let personality = 'Casual Viewer';
+  let description = 'You enjoy a balanced mix of content.';
+  const traits: string[] = [];
+
+  if (movieRatio > 0.7) {
+    personality = 'Movie Buff';
+    description = 'You prefer the cinematic experience of movies over episodic content.';
+    traits.push('Movie Enthusiast');
+    traits.push('Quality over Quantity');
+  } else if (movieRatio < 0.3) {
+    personality = 'Binge Master';
+    description = 'You love diving deep into TV series and can\'t get enough of episodic storytelling.';
+    traits.push('Series Devotee');
+    traits.push('Long-form Content Lover');
+  }
+
+  if (genreDiversity > 10) {
+    traits.push('Genre Explorer');
+  } else if (genreDiversity < 5) {
+    traits.push('Genre Loyalist');
+  }
+
+  if (maxConsecutive > 7) {
+    traits.push('Binge Champion');
+  }
+
+  if (nightRatio > 0.4) {
+    traits.push('Night Owl');
+  }
+
+  if (contentAge > 20) {
+    traits.push('Classic Lover');
+  } else if (contentAge < 5) {
+    traits.push('Trend Follower');
+  }
+
+  if (traits.length === 0) {
+    traits.push('Balanced Viewer');
+  }
+
+  return {
+    personality,
+    description,
+    traits,
+  };
+}
+
+// Get fun comparisons
+export async function getFunComparisons(
+  config: JellyfinConfig,
+  timeframe: Timeframe
+): Promise<FunComparisons> {
+  const movies = await listMovies(config, timeframe);
+  const shows = await listShows(config, timeframe);
+
+  // Calculate total watch time in minutes
+  const movieTime = movies.reduce((sum, m) => sum + (m.totalWatchTimeSeconds || 0), 0) / 60;
+  const showTime = shows.reduce((sum, s) => sum + (s.playbackTime || 0), 0) / 60;
+  const totalMinutes = movieTime + showTime;
+  const totalHours = totalMinutes / 60;
+  const totalDays = totalHours / 24;
+
+  const comparisons: Array<{ label: string; value: number; unit: string }> = [];
+
+  // Movie theaters (assuming 2-hour movies, 100-seat theaters)
+  const avgMovieLength = 120; // minutes
+  const theaterCapacity = 100;
+  const theaters = Math.round((totalMinutes / avgMovieLength) / theaterCapacity);
+  if (theaters > 0) {
+    comparisons.push({
+      label: 'You watched enough to fill',
+      value: theaters,
+      unit: theaters === 1 ? 'movie theater' : 'movie theaters',
+    });
+  }
+
+  // Work weeks (40 hours/week)
+  const workWeeks = Math.round(totalHours / 40);
+  if (workWeeks > 0) {
+    comparisons.push({
+      label: "That's",
+      value: workWeeks,
+      unit: workWeeks === 1 ? 'full work week' : 'full work weeks',
+    });
+  }
+
+  // Complete TV series (average 8 seasons, 10 episodes, 45 min each = 60 hours)
+  const avgSeriesLength = 60 * 60; // minutes
+  const series = Math.round(totalMinutes / avgSeriesLength);
+  if (series > 0) {
+    comparisons.push({
+      label: 'You could have watched',
+      value: series,
+      unit: series === 1 ? 'complete TV series' : 'complete TV series',
+    });
+  }
+
+  // Full days
+  if (totalDays >= 1) {
+    comparisons.push({
+      label: 'You watched the equivalent of',
+      value: Math.round(totalDays),
+      unit: Math.round(totalDays) === 1 ? 'full day' : 'full days',
+    });
+  }
+
+  // Lord of the Rings trilogy (extended edition ~11 hours = 660 minutes)
+  const lotrLength = 11 * 60; // minutes
+  const lotrTimes = Math.round(totalMinutes / lotrLength);
+  if (lotrTimes > 0) {
+    comparisons.push({
+      label: 'You could have watched',
+      value: lotrTimes,
+      unit: lotrTimes === 1 ? 'time the entire Lord of the Rings trilogy' : 'times the entire Lord of the Rings trilogy',
+    });
+  }
+
+  return { comparisons };
+}
+
 

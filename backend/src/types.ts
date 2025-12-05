@@ -122,3 +122,68 @@ export interface Timeframe {
   startDate: string; // YYYY-MM-DD
   endDate: string; // YYYY-MM-DD
 }
+
+// Streak statistics
+export interface StreakStats {
+  longestStreak: number;
+  longestBreak: number;
+  currentStreak: number;
+  streakStartDate?: string;
+}
+
+// Time personality
+export interface TimePersonality {
+  personality: string;
+  breakdown: {
+    earlyBird: number;
+    dayWatcher: number;
+    primeTimer: number;
+    nightOwl: number;
+  };
+  peakTime: string;
+}
+
+// Decade breakdown
+export interface DecadeBreakdown {
+  periodBreakdown: Array<{
+    period: string;
+    count: number;
+    percentage: number;
+  }>;
+  averageYear: number;
+  topPeriod: string;
+  personality: string;
+  message: string;
+}
+
+// Watch evolution
+export interface WatchEvolution {
+  monthlyData: Array<{
+    month: string;
+    watchTimeMinutes: number;
+    topGenre?: string;
+  }>;
+  genreEvolution: Array<{
+    month: string;
+    genres: Array<{
+      genre: string;
+      count: number;
+    }>;
+  }>;
+}
+
+// Viewing personality
+export interface ViewingPersonality {
+  personality: string;
+  description: string;
+  traits: string[];
+}
+
+// Fun comparisons
+export interface FunComparisons {
+  comparisons: Array<{
+    label: string;
+    value: number;
+    unit: string;
+  }>;
+}

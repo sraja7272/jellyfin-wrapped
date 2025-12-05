@@ -26,14 +26,20 @@ import {
   Activity,
   CirclePause,
   Zap,
+  TrendingUp,
   LucideIcon,
 } from "lucide-react";
 
 // Map paths to icons
 const pathToIcon: Record<string, LucideIcon> = {
+  "/total-time": Clock,
+  "/streaks": Zap,
+  "/personality": Users,
   "/TopTen": Trophy,
   "/movies": Film,
   "/shows": Tv,
+  "/decades": CalendarIcon,
+  "/watch-evolution": TrendingUp,
   "/audio": Music,
   "/music-videos": Video,
   "/actors": Users,
@@ -48,13 +54,19 @@ const pathToIcon: Record<string, LucideIcon> = {
   "/unfinished-shows": CirclePause,
   "/device-stats": MonitorSmartphone,
   "/punch-card": Activity,
+  "/share": PartyPopper,
 };
 
 // Map paths to display names
 const pathToName: Record<string, string> = {
+  "/total-time": "Total Time",
+  "/streaks": "Streaks",
+  "/personality": "Personality",
   "/TopTen": "Top 10",
   "/movies": "Movies",
   "/shows": "TV Shows",
+  "/decades": "Decade Breakdown",
+  "/watch-evolution": "Watch Evolution",
   "/audio": "Music",
   "/music-videos": "Music Videos",
   "/actors": "Favorite Actors",
@@ -69,6 +81,7 @@ const pathToName: Record<string, string> = {
   "/unfinished-shows": "Unfinished Shows",
   "/device-stats": "Device Stats",
   "/punch-card": "Activity Calendar",
+  "/share": "Share Your Wrapped",
 };
 
 const Navigation = () => {

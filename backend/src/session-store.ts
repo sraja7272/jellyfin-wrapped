@@ -11,8 +11,8 @@ interface Session {
 // Map of JWT jti (unique token ID) to session data
 const sessions = new Map<string, Session>();
 
-// Session expiry time (24 hours)
-const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+// Session expiry time (1 hour)
+const SESSION_TTL_MS = 60 * 60 * 1000;
 
 export function createSession(jti: string, session: Omit<Session, 'createdAt'>): void {
   sessions.set(jti, {
@@ -47,4 +47,5 @@ setInterval(() => {
     }
   }
 }, 60 * 60 * 1000); // Run every hour
+
 

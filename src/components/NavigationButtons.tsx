@@ -12,8 +12,22 @@ export function NavigationButtons() {
   const containerRef = useRef<HTMLElement | null>(null);
   const scrollListenerRef = useRef<(() => void) | null>(null);
   
+  // Check if we're in quiz state (on TopTen page with quiz cards visible)
+  const isInQuizState = useCallback(() => {
+    if (location.pathname !== "/TopTen") return false;
+    // Check if quiz cards are present in the DOM
+    const quizCards = document.querySelectorAll('[data-quiz-card="true"]');
+    return quizCards.length > 0;
+  }, [location.pathname]);
+
   // Check if user has scrolled to bottom
   const checkScrollPosition = useCallback(() => {
+    // Don't show buttons during quiz
+    if (isInQuizState()) {
+      setIsVisible(false);
+      return;
+    }
+
     // Find the active scroll container
     const scrollContainers = document.querySelectorAll('[data-scroll-container="true"]');
     const scrollableContainer = scrollContainers[scrollContainers.length - 1] as HTMLElement;
@@ -31,7 +45,7 @@ export function NavigationButtons() {
       
       setIsVisible(noScrollNeeded || isAtBottom);
     }
-  }, []);
+  }, [isInQuizState]);
   
   // Set up scroll listener for the current container
   const setupScrollListener = useCallback(() => {
@@ -67,6 +81,7 @@ export function NavigationButtons() {
     // Multiple attempts to catch the container after transition
     [0, 100, 300, 500, 800, 1200].forEach((delay) => {
       const timeout = setTimeout(() => {
+        // Always set up scroll listener, but checkScrollPosition will handle quiz state
         setupScrollListener();
       }, delay);
       timeouts.push(timeout);
@@ -75,8 +90,20 @@ export function NavigationButtons() {
     // Listen to window resize
     window.addEventListener("resize", checkScrollPosition);
     
+    // Also check for quiz state changes periodically (for TopTen page)
+    let quizCheckInterval: NodeJS.Timeout | null = null;
+    if (location.pathname === "/TopTen") {
+      quizCheckInterval = setInterval(() => {
+        // Always check scroll position - it will handle quiz state internally
+        checkScrollPosition();
+      }, 200);
+    }
+    
     return () => {
       timeouts.forEach(clearTimeout);
+      if (quizCheckInterval) {
+        clearInterval(quizCheckInterval);
+      }
       if (scrollListenerRef.current && containerRef.current) {
         containerRef.current.removeEventListener("scroll", scrollListenerRef.current);
       }

@@ -65,7 +65,7 @@ export async function authRoutes(fastify: FastifyInstance) {
             userId: authData.User.Id,
             username: authData.User.Name,
           } as JwtPayload,
-          { expiresIn: '24h' }
+          { expiresIn: '1h' }
         );
 
         return {
@@ -123,4 +123,5 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   });
 }
+
 

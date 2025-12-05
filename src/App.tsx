@@ -30,6 +30,12 @@ import UnfinishedShowsPage from "./components/pages/UnfinishedShowsPage";
 import CriticallyAcclaimedPage from "./components/pages/CriticallyAcclaimedPage";
 import TopTenPage from "./components/pages/TopTenPage";
 import ActivityCalendarPage from "./components/pages/ActivityCalendarPage";
+import TotalTimePage from "./components/pages/TotalTimePage";
+import StreaksPage from "./components/pages/StreaksPage";
+import PersonalityPage from "./components/pages/PersonalityPage";
+import DecadeBreakdownPage from "./components/pages/DecadeBreakdownPage";
+import WatchEvolutionPage from "./components/pages/WatchEvolutionPage";
+import SharePage from "./components/pages/SharePage";
 import Navigation from "./components/Navigation";
 import { NavigationButtons } from "./components/NavigationButtons";
 import { LoadingPage } from "./components/pages/LoadingPage";
@@ -343,6 +349,26 @@ const router = createBrowserRouter([
     element: <DataWrappedLayout />,
     children: [
       {
+        path: "/total-time",
+        element: <TotalTimePage />,
+      },
+      {
+        path: "/streaks",
+        element: <StreaksPage />,
+      },
+      {
+        path: "/personality",
+        element: <PersonalityPage />,
+      },
+      {
+        path: "/decades",
+        element: <DecadeBreakdownPage />,
+      },
+      {
+        path: "/watch-evolution",
+        element: <WatchEvolutionPage />,
+      },
+      {
         path: "/movies",
         element: <MoviesReviewPage />,
       },
@@ -405,6 +431,10 @@ const router = createBrowserRouter([
       {
         path: "/TopTen",
         element: <TopTenPage />,
+      },
+      {
+        path: "/share",
+        element: <SharePage />,
       },
     ],
   },
