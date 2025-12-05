@@ -238,9 +238,15 @@ export default function SharePage() {
                 animate={!isMobile ? { 
                   x: cards.length > 0 && centerOffset > 0 ? centerOffset - currentIndex * (cardWidth + gap) : 0 
                 } : {}}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                transition={!isMobile ? { type: "spring", stiffness: 300, damping: 30 } : {}}
                 initial={false}
-                style={{ willChange: "transform" }}
+                style={{ 
+                  willChange: !isMobile ? "transform" : "auto",
+                  transform: "translateZ(0)",
+                  WebkitTransform: "translateZ(0)",
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                }}
               >
                 {/* Total Time Card */}
                 {totalWatchTime > 0 && (

@@ -283,10 +283,11 @@ export function LoadingPage() {
           as={motion.div}
           animate={{ rotate: 360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform", transform: "translateZ(0)" }}
         />
         <Ring
           as={motion.div}
-          style={{ width: "350px", height: "350px" }}
+          style={{ width: "350px", height: "350px", willChange: "transform", transform: "translateZ(0)" }}
           animate={{ rotate: -360 }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         />
@@ -304,10 +305,14 @@ export function LoadingPage() {
           style={{ 
             top: "30%", 
             left: "50%", 
-            transform: "translateX(-50%)",
+            transform: "translateX(-50%) translateZ(0)",
+            WebkitTransform: "translateX(-50%) translateZ(0)",
             width: "700px", 
             height: "700px", 
-            background: "radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%)",
+            willChange: "transform, opacity",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
           }}
         />
         <Orb 
@@ -322,7 +327,12 @@ export function LoadingPage() {
             left: "30%", 
             width: "400px", 
             height: "400px", 
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%)",
+            willChange: "transform, opacity",
+            transform: "translateZ(0)",
+            WebkitTransform: "translateZ(0)",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
           }}
         />
       </OrbLayer>

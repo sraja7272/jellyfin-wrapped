@@ -142,6 +142,8 @@ export function NavigationButtons() {
                 variant="secondary"
                 whileHover={{ scale: 1.01, x: -4 }}
                 whileTap={{ scale: 0.99 }}
+                transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+                style={{ willChange: "transform" }}
                 onClick={() => {
                   setIsVisible(false); // Hide immediately on click
                   void navigate(previousPage);
@@ -157,6 +159,8 @@ export function NavigationButtons() {
                 variant="primary"
                 whileHover={{ scale: 1.01, x: 4 }}
                 whileTap={{ scale: 0.99 }}
+                transition={{ duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+                style={{ willChange: "transform" }}
                 onClick={() => {
                   setIsVisible(false); // Hide immediately on click
                   void navigate(nextPage);

@@ -3,7 +3,8 @@ export const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
     },
   },
 };
@@ -13,5 +14,9 @@ export const itemVariants = {
   visible: {
     y: 0,
     opacity: 1,
+    transition: {
+      duration: 0.3,
+      ease: [0.25, 0.46, 0.45, 0.94], // Optimized easing for mobile
+    },
   },
 };

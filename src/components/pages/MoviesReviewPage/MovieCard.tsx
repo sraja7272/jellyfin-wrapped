@@ -24,7 +24,8 @@ export function MovieCard({
     <Card
       as={motion.div}
       whileHover={{ y: -6, scale: 1.02 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+      style={{ willChange: "transform" }}
     >
       <ImageContainer>
         {item.imageUrl && !hasError ? (

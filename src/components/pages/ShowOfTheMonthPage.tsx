@@ -52,7 +52,8 @@ export default function ShowOfTheMonthPage() {
                 key={stat.month.toISOString()}
                 as={motion.div}
                 whileHover={{ scale: 1.02, y: -4 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                style={{ willChange: "transform" }}
               >
                 <ImageContainer>
                   {stat.topShow.item.imageUrl ? (
