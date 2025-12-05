@@ -17,7 +17,7 @@ function getImageOptions() {
   return {
     quality: 1.0,
     pixelRatio: 2,
-    backgroundColor: null, // Transparent background to preserve rounded corners
+    backgroundColor: undefined, // Transparent background to preserve rounded corners
     cacheBust: true,
     useCORS: true,
     allowTaint: false,
