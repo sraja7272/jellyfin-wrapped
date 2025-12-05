@@ -64,7 +64,7 @@ export default function SharePage() {
       cardArray.push({ type: "stats", key: "stats" });
     }
     return cardArray;
-  }, [totalWatchTime, topMovie, topShow, top3Movies.length, top3Shows.length, movieCount, showCount]);
+  }, [totalWatchTime, topMovie, topShow, top3Movies, top3Shows, movieCount, showCount]);
 
   // Calculate center offset after cards is defined
   useEffect(() => {

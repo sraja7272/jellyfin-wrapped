@@ -812,7 +812,7 @@ export async function getTimePersonality(
     peakTime = 'Before 9am';
   } else if (breakdown.dayWatcher === maxCategory) {
     personality = 'Day Watcher';
-    peakTime = '9am-5pm';
+    peakTime = '9am-4pm';
   } else if (breakdown.primeTimer === maxCategory) {
     personality = 'Prime Timer';
     peakTime = '5pm-10pm';
