@@ -706,16 +706,18 @@ export async function getStreakStats(
   
   let checkDate = new Date(today);
   let consecutiveDays = 0;
-  let lastValidDate: Date | null = null;
   while (sortedDays.includes(checkDate.toISOString().split('T')[0])) {
     consecutiveDays++;
-    lastValidDate = new Date(checkDate);
     checkDate.setDate(checkDate.getDate() - 1);
   }
   currentStreak = consecutiveDays;
   // Set streak start date to the earliest date in the consecutive sequence
-  if (lastValidDate && consecutiveDays > 0) {
-    streakStartDate = lastValidDate.toISOString().split('T')[0];
+  // After the loop breaks, checkDate is the first day NOT in the streak
+  // So the earliest date in the streak (when it began) is checkDate + 1 day
+  if (consecutiveDays > 0) {
+    const earliestDate = new Date(checkDate);
+    earliestDate.setDate(earliestDate.getDate() + 1);
+    streakStartDate = earliestDate.toISOString().split('T')[0];
   }
 
   // Calculate longest streak and longest break
@@ -872,7 +874,7 @@ export async function getDecadeBreakdown(
   const periodBreakdown = Object.entries(periods).map(([period, count]) => ({
     period,
     count,
-    percentage: total > 0 ? Math.round((count / total) * 100) : 0,
+    percentage: yearCount > 0 ? Math.round((count / yearCount) * 100) : 0,
   }));
 
   const averageYear = yearCount > 0 ? Math.round(totalYear / yearCount) : 0;
