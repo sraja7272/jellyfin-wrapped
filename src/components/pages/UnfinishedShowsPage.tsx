@@ -96,31 +96,31 @@ const Subtitle = styled("p", {
 });
 
 const ContentGrid = styled("div", {
-  display: "flex",
-  flexWrap: "wrap",
+  display: "grid",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  gap: "12px",
+  alignItems: "stretch",
   justifyContent: "center",
-  alignItems: "start",
-  gap: "1rem",
   
   "& > *": {
-    width: "calc(50% - 0.5rem)",
-    maxWidth: "200px",
-    minWidth: "140px",
+    maxWidth: "100%",
+    minWidth: 0,
   },
   
   "@media (min-width: 640px)": {
-    alignItems: "stretch",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 200px))",
     gap: "20px",
-    
+    justifyContent: "center",
     "& > *": {
-      width: "calc(33.333% - 14px)",
       maxWidth: "200px",
     },
   },
   
   "@media (min-width: 768px)": {
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 200px))",
+    gap: "20px",
+    justifyContent: "center",
     "& > *": {
-      width: "calc(25% - 15px)",
       maxWidth: "200px",
     },
   },
