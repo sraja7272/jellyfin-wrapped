@@ -6,7 +6,6 @@ import {
   RouterProvider,
   useLocation,
   useOutlet,
-  useNavigate,
   Navigate,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -276,7 +275,6 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const [authState, setAuthState] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
   const [shouldRedirectToLoading, setShouldRedirectToLoading] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const hasCheckedRedirect = useRef(false);
 
   useEffect(() => {
@@ -324,8 +322,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
             // Determine redirect URL:
             // - If on a content page, redirect back to that page
             // - Otherwise, use first available page or default to /total-time
-            let redirectUrl = "/total-time";
-            const contentPages = ALL_PAGES.map(p => p.path);
+            let redirectUrl: string = "/total-time";
+            const contentPages = ALL_PAGES.map(p => p.path) as string[];
             
             if (contentPages.includes(currentPath)) {
               // Coming from a specific content page, redirect back to it
@@ -405,8 +403,8 @@ function DataWrappedLayout() {
         // On error reset, redirect to loading page to re-fetch data
         // Use current path as redirect, or default to /total-time
         const currentPath = window.location.pathname;
-        const contentPages = ALL_PAGES.map(p => p.path);
-        const redirectUrl = contentPages.includes(currentPath) ? currentPath : "/total-time";
+        const contentPages = ALL_PAGES.map(p => p.path) as string[];
+        const redirectUrl: string = contentPages.includes(currentPath) ? currentPath : "/total-time";
         const safeRedirectUrl = redirectUrl === "/loading" ? "/total-time" : redirectUrl;
         window.location.href = `/loading?redirect=${encodeURIComponent(safeRedirectUrl)}`;
       }}

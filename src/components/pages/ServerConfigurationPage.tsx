@@ -11,7 +11,7 @@ import {
   JELLYFIN_USERNAME_CACHE_KEY,
   setCacheValue,
 } from "@/lib/cache";
-import { getAvailablePages, ALL_PAGES } from "@/lib/navigation";
+import { getAvailablePages } from "@/lib/navigation";
 
 const ServerConfigurationPage = () => {
   const { showBoundary } = useErrorBoundary();
