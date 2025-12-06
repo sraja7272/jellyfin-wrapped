@@ -78,15 +78,23 @@ const ServerConfigurationPage = () => {
       {/* Geometric background elements */}
       <GeometricBackground>
         <GeometricShape
-          as={motion.div}
-          style={{ animation: "spin 40s linear infinite" }}
-          style={{ top: "10%", left: "5%", width: "150px", height: "150px" }}
+          style={{ 
+            animation: "spin 40s linear infinite",
+            top: "10%", 
+            left: "5%", 
+            width: "150px", 
+            height: "150px" 
+          }}
         />
         <GeometricShape
-          as={motion.div}
           variant="ring"
-          style={{ animation: "spin-reverse 35s linear infinite" }}
-          style={{ bottom: "15%", right: "8%", width: "200px", height: "200px" }}
+          style={{ 
+            animation: "spin-reverse 35s linear infinite",
+            bottom: "15%", 
+            right: "8%", 
+            width: "200px", 
+            height: "200px" 
+          }}
         />
       </GeometricBackground>
 
