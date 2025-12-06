@@ -11,8 +11,7 @@ import {
   JELLYFIN_USERNAME_CACHE_KEY,
   setCacheValue,
 } from "@/lib/cache";
-
-const NEXT_PAGE = "/loading";
+import { getAvailablePages, ALL_PAGES } from "@/lib/navigation";
 
 const ServerConfigurationPage = () => {
   const { showBoundary } = useErrorBoundary();
@@ -39,7 +38,12 @@ const ServerConfigurationPage = () => {
     setIsLoading(true);
     try {
       await backendLogin(username, password);
-      void navigate(NEXT_PAGE);
+      // Determine redirect URL - use first available page or default to /total-time
+      const availablePages = getAvailablePages();
+      const redirectUrl = availablePages.length > 0 ? availablePages[0] : "/total-time";
+      // Ensure we never redirect back to /loading
+      const safeRedirectUrl = redirectUrl === "/loading" ? "/total-time" : redirectUrl;
+      void navigate(`/loading?redirect=${encodeURIComponent(safeRedirectUrl)}`);
     } catch (e) {
       showBoundary(e);
     } finally {
