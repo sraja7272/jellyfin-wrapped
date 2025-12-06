@@ -415,20 +415,9 @@ export function LoadingPage() {
           {emojis.map((emoji, i) => (
             <FloatingEmoji
               key={i}
-              as={motion.div}
-              animate={{
-                y: [-25, 25, -25],
-                x: [0, 15, 0],
-                rotate: [0, 8, -8, 0],
-              }}
-              transition={{
-                duration: 5 + i,
-                repeat: Infinity,
-                delay: i * 0.4,
-                ease: "easeInOut",
-              }}
               style={{
                 left: `${8 + i * 13}%`,
+                animation: `float-emoji ${5 + i}s ease-in-out infinite ${i * 0.4}s`,
               }}
             >
               {emoji}

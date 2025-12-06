@@ -415,15 +415,17 @@ body {
 
 /* Optimize framer-motion animations on mobile - reduce complexity */
 @media (max-width: 768px) {
-  /* Disable complex animations on mobile for better performance */
-  [data-framer-component] {
-    /* Reduce animation complexity */
-    animation-duration: 0.3s !important;
+  /* Disable background animations on mobile for better performance */
+  .OrbLayer,
+  .OrbContainer,
+  .GeometricLayer,
+  .ParticleField {
+    display: none !important;
   }
   
-  /* Simplify infinite animations */
-  [style*="repeat: Infinity"] {
-    animation-play-state: paused;
+  /* Reduce animation complexity */
+  [data-framer-component] {
+    animation-duration: 0.3s !important;
   }
 }
 
@@ -461,6 +463,98 @@ body {
   }
   75% {
     transform: translate3d(-40px, -15px, 0) scale(1.02);
+  }
+}
+
+@keyframes orb-float-1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(50px, -40px, 0) scale(1.1);
+  }
+}
+
+@keyframes orb-float-2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-60px, 50px, 0) scale(0.9);
+  }
+}
+
+@keyframes orb-float-3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(40px, 60px, 0) scale(1.05);
+  }
+}
+
+@keyframes orb-float-4 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-30px, -45px, 0) scale(1);
+  }
+}
+
+@keyframes float-emoji {
+  0%, 100% {
+    transform: translate3d(0, -25px, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(15px, 25px, 0) rotate(8deg);
+  }
+}
+
+@keyframes float-y {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -20px, 0);
+  }
+}
+
+@keyframes float-x {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(20px, 0, 0);
+  }
+}
+
+@keyframes scale-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes opacity-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes particle-float {
+  0%, 100% {
+    transform: translate3d(0, -15px, 0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate3d(0, 15px, 0);
+    opacity: 0.8;
   }
 }
 

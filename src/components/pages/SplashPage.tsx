@@ -84,20 +84,12 @@ const SplashPage = () => {
       {/* Floating geometric shapes */}
       <GeometricLayer>
         <GeometricShape
-          as={motion.div}
-          animate={{ 
-            rotate: 360,
-            y: [0, -20, 0],
-          }}
-          transition={{ 
-            rotate: { duration: 30, repeat: Infinity, ease: "linear" },
-            y: { duration: 8, repeat: Infinity, ease: "easeInOut" }
-          }}
           css={{
             top: "15%",
             left: "8%",
             width: "120px",
             height: "120px",
+            animation: "spin 30s linear infinite, float-y 8s ease-in-out infinite",
             "@media (max-width: 768px)": {
               width: "60px",
               height: "60px",
@@ -106,21 +98,13 @@ const SplashPage = () => {
           }}
         />
         <GeometricShape
-          as={motion.div}
           variant="ring"
-          animate={{ 
-            rotate: -360,
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ 
-            rotate: { duration: 25, repeat: Infinity, ease: "linear" },
-            scale: { duration: 6, repeat: Infinity, ease: "easeInOut" }
-          }}
           css={{
             top: "25%",
             right: "10%",
             width: "160px",
             height: "160px",
+            animation: "spin-reverse 25s linear infinite, scale-pulse 6s ease-in-out infinite",
             "@media (max-width: 768px)": {
               width: "80px",
               height: "80px",
@@ -129,21 +113,13 @@ const SplashPage = () => {
           }}
         />
         <GeometricShape
-          as={motion.div}
           variant="triangle"
-          animate={{ 
-            rotate: 360,
-            x: [0, 20, 0],
-          }}
-          transition={{ 
-            rotate: { duration: 35, repeat: Infinity, ease: "linear" },
-            x: { duration: 10, repeat: Infinity, ease: "easeInOut" }
-          }}
           css={{
             bottom: "20%",
             left: "12%",
             width: "80px",
             height: "80px",
+            animation: "spin 35s linear infinite, float-x 10s ease-in-out infinite",
             "@media (max-width: 768px)": {
               width: "40px",
               height: "40px",
@@ -152,17 +128,13 @@ const SplashPage = () => {
           }}
         />
         <GeometricShape
-          as={motion.div}
           variant="dots"
-          animate={{ 
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           css={{
             bottom: "30%",
             right: "15%",
             width: "100px",
             height: "100px",
+            animation: "opacity-pulse 4s ease-in-out infinite",
             "@media (max-width: 768px)": {
               width: "50px",
               height: "50px",
@@ -175,19 +147,13 @@ const SplashPage = () => {
       {/* Animated orbs with electric colors */}
       <OrbContainer>
         <Orb 
-          as={motion.div}
-          animate={{ 
-            x: [0, 60, 0],
-            y: [0, -40, 0],
-            scale: [1, 1.15, 1],
-          }}
-          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
           css={{ 
             top: "0%", 
             left: "0%", 
             width: "600px", 
             height: "600px", 
             background: "radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%)",
+            animation: "orb-float-1 14s ease-in-out infinite",
             "@media (max-width: 768px)": {
               width: "300px",
               height: "300px",
@@ -199,19 +165,13 @@ const SplashPage = () => {
           }}
         />
         <Orb 
-          as={motion.div}
-          animate={{ 
-            x: [0, -70, 0],
-            y: [0, 50, 0],
-            scale: [1, 0.9, 1],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
           css={{ 
             top: "40%", 
             right: "-10%", 
             width: "700px", 
             height: "700px", 
             background: "radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%)",
+            animation: "orb-float-2 18s ease-in-out infinite",
             "@media (max-width: 768px)": {
               width: "350px",
               height: "350px",
@@ -225,19 +185,13 @@ const SplashPage = () => {
           }}
         />
         <Orb 
-          as={motion.div}
-          animate={{ 
-            x: [0, 50, 0],
-            y: [0, 70, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           css={{ 
             bottom: "-5%", 
             left: "20%", 
             width: "550px", 
             height: "550px", 
             background: "radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%)",
+            animation: "orb-float-3 20s ease-in-out infinite",
             "@media (max-width: 768px)": {
               width: "280px",
               height: "280px",
@@ -255,30 +209,26 @@ const SplashPage = () => {
 
       {/* Floating particles */}
       <ParticleField>
-        {[...Array(30)].map((_, i) => (
+        {[...Array(30)].map((_, i) => {
+          const duration = 4 + (i % 5);
+          const delay = (i % 3);
+          const left = 5 + (i * 3) % 90;
+          const top = 5 + (i * 3) % 90;
+          const size = 2 + (i % 3);
+          return (
           <Particle
             key={i}
-            as={motion.div}
-            animate={{
-              y: [-15, 15, -15],
-              opacity: [0.2, 0.8, 0.2],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 5,
-              repeat: Infinity,
-              delay: Math.random() * 3,
-              ease: "easeInOut",
-            }}
             style={{
-              left: `${5 + Math.random() * 90}%`,
-              top: `${5 + Math.random() * 90}%`,
-              width: `${2 + Math.random() * 3}px`,
-              height: `${2 + Math.random() * 3}px`,
+              left: `${left}%`,
+              top: `${top}%`,
+              width: `${size}px`,
+              height: `${size}px`,
               background: i % 3 === 0 ? "#00f0ff" : i % 3 === 1 ? "#a855f7" : "#f59e0b",
+              animation: `particle-float ${duration}s ease-in-out infinite ${delay}s`,
             }}
           />
-        ))}
+          );
+        })}
       </ParticleField>
 
       <ContentWrapper

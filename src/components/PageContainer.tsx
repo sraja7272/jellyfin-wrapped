@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { styled } from "@stitches/react";
-import { motion } from "framer-motion";
 
 interface PageContainerProps {
   children: ReactNode;
@@ -18,66 +17,43 @@ const PageContainer = ({
       {/* Animated gradient orbs */}
       <OrbLayer>
         <Orb 
-          as={motion.div}
-          animate={{ 
-            x: [0, 50, 0],
-            y: [0, -40, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             top: "-15%", 
             left: "5%", 
             width: "600px", 
             height: "600px", 
-            background: "radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 70%)",
+            animation: "orb-float-1 22s ease-in-out infinite",
           }}
         />
         <Orb 
-          as={motion.div}
-          animate={{ 
-            x: [0, -60, 0],
-            y: [0, 50, 0],
-            scale: [1, 0.9, 1],
-          }}
-          transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             top: "35%", 
             right: "-10%", 
             width: "700px", 
             height: "700px", 
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%)",
+            animation: "orb-float-2 28s ease-in-out infinite",
           }}
         />
         <Orb 
-          as={motion.div}
-          animate={{ 
-            x: [0, 40, 0],
-            y: [0, 60, 0],
-            scale: [1, 1.05, 1],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             bottom: "-15%", 
             left: "25%", 
             width: "550px", 
             height: "550px", 
-            background: "radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%)",
+            animation: "orb-float-3 25s ease-in-out infinite",
           }}
         />
         <Orb 
-          as={motion.div}
-          animate={{ 
-            x: [0, -30, 0],
-            y: [0, -45, 0],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             top: "60%", 
             left: "-5%", 
             width: "400px", 
             height: "400px", 
-            background: "radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)",
+            animation: "orb-float-4 20s ease-in-out infinite",
           }}
         />
       </OrbLayer>

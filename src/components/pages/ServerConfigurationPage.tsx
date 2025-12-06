@@ -101,27 +101,23 @@ const ServerConfigurationPage = () => {
       {/* Orb effects */}
       <OrbContainer>
         <Orb 
-          as={motion.div}
-          animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             top: "5%", 
             right: "15%", 
             width: "500px", 
             height: "500px", 
-            background: "radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 70%)",
+            animation: "orb-float 12s ease-in-out infinite",
           }}
         />
         <Orb 
-          as={motion.div}
-          animate={{ x: [0, -50, 0], y: [0, 40, 0] }}
-          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             bottom: "5%", 
             left: "0%", 
             width: "600px", 
             height: "600px", 
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%)" 
+            background: "radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%)",
+            animation: "orb-float 16s ease-in-out infinite",
           }}
         />
       </OrbContainer>
