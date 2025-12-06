@@ -2,13 +2,30 @@ import { toPng, toBlob } from "html-to-image";
 
 // Wait for fonts to load
 async function waitForFonts(): Promise<void> {
-  if (document.fonts && document.fonts.ready) {
+  if (document.fonts) {
     try {
       await document.fonts.ready;
     } catch (e) {
       console.warn("Font loading issue:", e);
     }
   }
+}
+
+// Wait for images to load in an element
+async function waitForImages(element: HTMLElement): Promise<void> {
+  const images = element.querySelectorAll('img');
+  const imagePromises = Array.from(images).map((img) => {
+    if (img.complete) {
+      return Promise.resolve();
+    }
+    return new Promise<void>((resolve) => {
+      img.onload = () => resolve();
+      img.onerror = () => resolve(); // Resolve even on error to not block
+      // Timeout after 5 seconds
+      setTimeout(() => resolve(), 5000);
+    });
+  });
+  await Promise.all(imagePromises);
 }
 
 // Get options for html-to-image
@@ -33,7 +50,7 @@ function getImageOptions() {
 }
 
 export async function downloadImage(element: HTMLElement, filename: string): Promise<void> {
-  // Create a temporary transparent container to isolate the element
+  // Create a temporary container to isolate the element
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'fixed';
   tempContainer.style.top = '-9999px'; // Position off-screen
@@ -46,8 +63,7 @@ export async function downloadImage(element: HTMLElement, filename: string): Pro
   tempContainer.style.display = 'flex';
   tempContainer.style.alignItems = 'center';
   tempContainer.style.justifyContent = 'center';
-  tempContainer.style.visibility = 'hidden'; // Hidden from view
-  tempContainer.style.opacity = '0'; // Fully transparent
+  // Keep visible for html-to-image to capture, just position off-screen
   
   // Clone the element to avoid disrupting the original
   const clonedElement = element.cloneNode(true) as HTMLElement;
@@ -61,8 +77,11 @@ export async function downloadImage(element: HTMLElement, filename: string): Pro
     // Wait for fonts to load
     await waitForFonts();
     
+    // Wait for images to load
+    await waitForImages(clonedElement);
+    
     // Small delay to ensure everything is rendered
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // Use html-to-image which handles modern CSS much better
     // It supports gradients, SVG, background-clip: text, and more
@@ -90,7 +109,7 @@ export async function downloadImage(element: HTMLElement, filename: string): Pro
 }
 
 export async function copyImageToClipboard(element: HTMLElement): Promise<void> {
-  // Create a temporary transparent container to isolate the element
+  // Create a temporary container to isolate the element
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'fixed';
   tempContainer.style.top = '-9999px'; // Position off-screen
@@ -103,8 +122,7 @@ export async function copyImageToClipboard(element: HTMLElement): Promise<void> 
   tempContainer.style.display = 'flex';
   tempContainer.style.alignItems = 'center';
   tempContainer.style.justifyContent = 'center';
-  tempContainer.style.visibility = 'hidden'; // Hidden from view
-  tempContainer.style.opacity = '0'; // Fully transparent
+  // Keep visible for html-to-image to capture, just position off-screen
   
   // Clone the element to avoid disrupting the original
   const clonedElement = element.cloneNode(true) as HTMLElement;
@@ -118,8 +136,11 @@ export async function copyImageToClipboard(element: HTMLElement): Promise<void> 
     // Wait for fonts to load
     await waitForFonts();
     
+    // Wait for images to load
+    await waitForImages(clonedElement);
+    
     // Small delay to ensure everything is rendered
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // Use html-to-image to get blob
     const blob = await toBlob(clonedElement, {
@@ -168,7 +189,7 @@ export async function copyImageToClipboard(element: HTMLElement): Promise<void> 
       try {
         const dataUrl = await toPng(clonedElement, getImageOptions());
         await navigator.clipboard.writeText(dataUrl);
-      } catch (fallbackError) {
+      } catch {
         throw error;
       }
     }
@@ -182,7 +203,7 @@ export async function copyImageToClipboard(element: HTMLElement): Promise<void> 
 }
 
 export async function shareImage(element: HTMLElement, title: string): Promise<void> {
-  // Create a temporary transparent container to isolate the element
+  // Create a temporary container to isolate the element
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'fixed';
   tempContainer.style.top = '-9999px'; // Position off-screen
@@ -195,8 +216,7 @@ export async function shareImage(element: HTMLElement, title: string): Promise<v
   tempContainer.style.display = 'flex';
   tempContainer.style.alignItems = 'center';
   tempContainer.style.justifyContent = 'center';
-  tempContainer.style.visibility = 'hidden'; // Hidden from view
-  tempContainer.style.opacity = '0'; // Fully transparent
+  // Keep visible for html-to-image to capture, just position off-screen
   
   // Clone the element to avoid disrupting the original
   const clonedElement = element.cloneNode(true) as HTMLElement;
@@ -210,8 +230,11 @@ export async function shareImage(element: HTMLElement, title: string): Promise<v
     // Wait for fonts to load
     await waitForFonts();
     
+    // Wait for images to load
+    await waitForImages(clonedElement);
+    
     // Small delay to ensure everything is rendered
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // Use html-to-image to get blob
     const blob = await toBlob(clonedElement, {
