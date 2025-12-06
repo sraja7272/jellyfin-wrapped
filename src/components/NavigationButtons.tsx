@@ -185,8 +185,7 @@ const NavButtonContainer = styled("div", {
   right: 0,
   zIndex: 1000,
   padding: "20px 24px 32px",
-  background: "linear-gradient(to top, rgba(3, 3, 4, 0.98) 0%, rgba(3, 3, 4, 0.92) 40%, transparent 100%)",
-  backdropFilter: "blur(16px)",
+  background: "transparent",
   
   "@media (max-width: 768px)": {
     padding: "16px 16px 24px",
