@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useMemo, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMovies } from "../../hooks/queries/useMovies";
 import { useShows } from "../../hooks/queries/useShows";
 import { useFavoriteActors } from "../../hooks/queries/useFavoriteActors";
@@ -41,8 +42,11 @@ const emojis = ["🎬", "📺", "🎵", "⭐", "🎭", "🎪", "✨"];
 
 export function LoadingPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const [progress, setProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
+  const hasNavigated = useRef(false);
 
   // Compute holiday dates once
   const holidayDates = useMemo(() => {
@@ -55,6 +59,13 @@ export function LoadingPage() {
       valentines: holidays.valentines,
     };
   }, []);
+
+  // Invalidate and refetch all queries on mount to force data loading
+  useEffect(() => {
+    void queryClient.invalidateQueries();
+    // Explicitly refetch all queries to ensure they run
+    void queryClient.refetchQueries();
+  }, [queryClient]);
 
   // Fetch all data
   const topTen = useTopTen();
@@ -109,13 +120,27 @@ export function LoadingPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) return 100;
-        return prev + 1;
+        // If data is loaded and we're not at 100%, quickly move to 100%
+        if (allLoaded) {
+          if (prev >= 100) return 100;
+          // Quickly animate to 100%
+          return Math.min(prev + 10, 100);
+        }
+        
+        // Normal progress behavior
+        if (prev >= 99) return 99; // Cap at 99% until all data is loaded
+        if (prev < 90) {
+          // Quickly move to 90%
+          return prev + 3;
+        } else {
+          // Slowly move from 90% to 99%
+          return prev + 0.5;
+        }
       });
-    }, 800);
+    }, 200); // Faster interval for smoother animation
 
     return () => clearInterval(interval);
-  }, []);
+  }, [allLoaded]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -125,9 +150,18 @@ export function LoadingPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // When all data is loaded, set progress to 100% and then navigate
   useEffect(() => {
-    if (allLoaded) {
-      // Determine which pages have content
+    if (allLoaded && !hasNavigated.current) {
+      // Set progress to 100%
+      setProgress(100);
+      
+      // Wait a brief moment to show 100%, then navigate
+      const timer = setTimeout(() => {
+        // Get redirect URL from query params (read it here to ensure we get the latest value)
+        const redirectUrl = searchParams.get("redirect");
+        
+        // Determine which pages have content
       const availablePages: PageDataKey[] = [];
 
       // Always include total time page first (if we have movies or shows)
@@ -262,15 +296,67 @@ export function LoadingPage() {
       // Set the available pages
       setAvailablePages(availablePages);
 
-      // Navigate to the first available page
-      const firstPage = getAvailablePages()[0] || "/";
-      void navigate(firstPage);
+      // Determine where to navigate
+      let targetPage = "/";
+      
+      if (redirectUrl && redirectUrl !== "/loading") {
+        // Use the provided redirect URL if it's not /loading
+        targetPage = redirectUrl;
+      } else {
+        // Otherwise use the first available page
+        const firstPage = getAvailablePages()[0];
+        if (firstPage) {
+          // Convert page key to route path
+          const pageToRoute: Record<string, string> = {
+            totalTime: "/total-time",
+            streaks: "/streaks",
+            personality: "/personality",
+            topTen: "/TopTen",
+            movies: "/movies",
+            shows: "/shows",
+            decades: "/decades",
+            watchEvolution: "/watch-evolution",
+            audio: "/audio",
+            musicVideos: "/music-videos",
+            actors: "/actors",
+            genres: "/genres",
+            liveTv: "/tv",
+            criticallyAcclaimed: "/critically-acclaimed",
+            oldestMovie: "/oldest-movie",
+            oldestShow: "/oldest-show",
+            holidays: "/holidays",
+            showOfTheMonth: "/show-of-the-month",
+            unfinishedShows: "/unfinished-shows",
+            deviceStats: "/device-stats",
+            punchCard: "/punch-card",
+            share: "/share",
+          };
+          targetPage = pageToRoute[firstPage] || "/total-time";
+        } else {
+          targetPage = "/total-time";
+        }
+      }
+      
+      // Never redirect back to /loading
+      if (targetPage === "/loading") {
+        targetPage = "/total-time";
+      }
+      
+        // Mark that we've navigated to prevent multiple navigations
+        hasNavigated.current = true;
+        
+        // Mark that we've completed the loading cycle to prevent redirect loops
+        sessionStorage.setItem("hasCompletedLoading", "true");
+        void navigate(targetPage);
+      }, 500); // Wait 500ms to show 100% before navigating
+      
+      return () => clearTimeout(timer);
     }
   }, [allLoaded, topTen.data, movies.data, shows.data, actors.data, audio.data, 
       musicVideos.data, liveTV.data, unfinishedShows.data, deviceStats.data,
       monthlyShowStats.data, punchCard.data, 
       christmas.data, christmasEve.data, halloween.data, valentines.data,
-      streaks.data, personality.data, decades.data, watchEvolution.data, navigate]);
+      streaks.data, personality.data, decades.data, watchEvolution.data, navigate, searchParams]);
 
   return (
     <Container>
@@ -388,7 +474,7 @@ export function LoadingPage() {
           </ProgressTrack>
           
           <ProgressText>
-            <span>{progress}%</span>
+            <span>{Math.round(progress)}%</span>
           </ProgressText>
         </ProgressContainer>
 

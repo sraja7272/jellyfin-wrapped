@@ -115,67 +115,47 @@ export default function SharePage() {
     };
   }, [cards.length, isMobile]); // Recalculate when number of cards changes or mobile state changes
 
-  // Handle scroll snapping on mobile
+  // Sync currentIndex with scroll position on mobile for dots indicator
   useEffect(() => {
     if (!isMobile || !containerRef.current) return;
 
     const container = containerRef.current;
+    let rafId: number | null = null;
 
-    const snapToCard = () => {
-      const scrollLeft = container.scrollLeft;
-      const viewportWidth = window.innerWidth;
-      const cardWidth = viewportWidth * 0.90; // 90vw
-      const padding = viewportWidth * 0.05; // 5vw (half of remaining 10vw)
+    const handleScroll = () => {
+      // Use requestAnimationFrame to throttle scroll updates
+      if (rafId !== null) return;
       
-      // Calculate which card should be centered
-      // Account for the padding on the left
-      const adjustedScroll = scrollLeft + padding;
-      const cardIndex = Math.round(adjustedScroll / cardWidth);
-      
-      // Clamp to valid card indices
-      const clampedIndex = Math.max(0, Math.min(cardIndex, cards.length - 1));
-      
-      // Calculate target scroll position to center the card
-      const targetScroll = clampedIndex * cardWidth - padding;
-      
-      // Snap to the target position
-      container.scrollTo({
-        left: targetScroll,
-        behavior: 'smooth'
+      rafId = requestAnimationFrame(() => {
+        const scrollLeft = container.scrollLeft;
+        const viewportWidth = window.innerWidth;
+        const cardWidth = viewportWidth * 0.90; // 90vw
+        const padding = viewportWidth * 0.05; // 5vw
+        
+        // Calculate which card is currently centered
+        const adjustedScroll = scrollLeft + padding;
+        const cardIndex = Math.round(adjustedScroll / cardWidth);
+        const clampedIndex = Math.max(0, Math.min(cardIndex, cards.length - 1));
+        
+        // Update currentIndex to sync with scroll position (for dots indicator)
+        setCurrentIndex(prevIndex => {
+          if (clampedIndex !== prevIndex) {
+            return clampedIndex;
+          }
+          return prevIndex;
+        });
+        
+        rafId = null;
       });
     };
 
-    let scrollTimeout: NodeJS.Timeout;
-    let isScrolling = false;
-
-    const handleScroll = () => {
-      isScrolling = true;
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        isScrolling = false;
-        snapToCard();
-      }, 150);
-    };
-
-    const handleTouchEnd = () => {
-      if (isScrolling) {
-        setTimeout(() => {
-          snapToCard();
-        }, 100);
-      } else {
-        snapToCard();
-      }
-    };
-
     container.addEventListener('scroll', handleScroll, { passive: true });
-    container.addEventListener('touchend', handleTouchEnd, { passive: true });
-    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 
     return () => {
       container.removeEventListener('scroll', handleScroll);
-      container.removeEventListener('touchend', handleTouchEnd);
-      container.removeEventListener('touchcancel', handleTouchEnd);
-      clearTimeout(scrollTimeout);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, [isMobile, cards.length]);
 
@@ -924,11 +904,13 @@ const CarouselContainer = styled("div", {
     overflowY: "hidden",
     scrollSnapType: "x mandatory",
     scrollBehavior: "smooth",
+    overscrollBehaviorX: "contain", // Prevent bounce/overscroll
     WebkitOverflowScrolling: "touch",
     scrollbarWidth: "none", // Firefox
     msOverflowStyle: "none", // IE/Edge
     scrollPaddingLeft: "5vw", // Padding to allow first card to center
     scrollPaddingRight: "5vw", // Padding to allow last card to center
+    touchAction: "pan-x", // Optimize for horizontal scrolling only
     
     "&::-webkit-scrollbar": {
       display: "none", // Chrome/Safari
@@ -982,7 +964,7 @@ const CardSlide = styled("div", {
     minWidth: "90vw",
     maxWidth: "90vw",
     scrollSnapAlign: "center",
-    scrollSnapStop: "always",
+    scrollSnapStop: "normal", // Allow faster swiping through cards
     display: "flex",
     justifyContent: "center",
     boxSizing: "border-box",

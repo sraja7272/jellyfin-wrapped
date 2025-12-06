@@ -11,7 +11,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useEffect, useRef, useState } from "react";
-import { getAvailablePages } from "./lib/navigation";
+import { getAvailablePages, ALL_PAGES } from "./lib/navigation";
 import SplashPage from "./components/pages/SplashPage";
 import ServerConfigurationPage from "./components/pages/ServerConfigurationPage";
 import MoviesReviewPage from "./components/pages/MoviesReviewPage";
@@ -273,6 +273,9 @@ function hasValidCredentials(): boolean {
 // AuthGuard: Ensures the user is authenticated before rendering children
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const [authState, setAuthState] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
+  const [shouldRedirectToLoading, setShouldRedirectToLoading] = useState(false);
+  const location = useLocation();
+  const hasCheckedRedirect = useRef(false);
 
   useEffect(() => {
     const authenticate = async () => {
@@ -286,6 +289,59 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
         // Verify session with backend
         const isValid = await verifySession();
         setAuthState(isValid ? "authenticated" : "unauthenticated");
+        
+        // On refresh/initial load, redirect to loading page to show the recap loading screen
+        // Only check once on mount, and only if we're not already on /loading
+        // Use window.location.pathname to get the actual browser URL (more reliable on refresh)
+        const currentPath = window.location.pathname;
+        if (isValid && !hasCheckedRedirect.current && currentPath !== "/loading") {
+          hasCheckedRedirect.current = true;
+          
+          // Check if this is a page load/refresh (not a client-side navigation)
+          const navEntries = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+          const isPageLoad = navEntries.length > 0 && 
+            (navEntries[0].type === "reload" || navEntries[0].type === "navigate");
+          
+          // On page load, clear the completed loading flag so we can redirect again
+          // This allows refreshes to show the loading screen
+          if (isPageLoad) {
+            sessionStorage.removeItem("hasCompletedLoading");
+          }
+          
+          // Check if we've already completed a loading cycle in this navigation session
+          // This prevents redirect loops when navigating from /loading to content pages
+          const hasCompletedLoading = sessionStorage.getItem("hasCompletedLoading") === "true";
+          
+          // Only redirect if:
+          // 1. This is a page load (refresh or initial navigation)
+          // 2. We haven't already redirected in this session
+          // 3. We haven't completed a loading cycle in this navigation session
+          if (isPageLoad && !sessionStorage.getItem("hasRedirectedToLoading") && !hasCompletedLoading) {
+            sessionStorage.setItem("hasRedirectedToLoading", "true");
+            
+            // Determine redirect URL:
+            // - If on a content page, redirect back to that page
+            // - Otherwise, use first available page or default to /total-time
+            let redirectUrl: string = "/total-time";
+            const contentPages = ALL_PAGES.map(p => p.path) as string[];
+            
+            if (contentPages.includes(currentPath)) {
+              // Coming from a specific content page, redirect back to it
+              redirectUrl = currentPath;
+            } else {
+              // Coming from login or other page, use first available page
+              const availablePages = getAvailablePages();
+              if (availablePages.length > 0) {
+                redirectUrl = availablePages[0];
+              }
+            }
+            
+            // Store redirect URL and trigger navigation
+            sessionStorage.setItem("loadingRedirectUrl", redirectUrl);
+            setShouldRedirectToLoading(true);
+            return;
+          }
+        }
       } catch (error) {
         console.error("Authentication failed:", error);
         setAuthState("unauthenticated");
@@ -293,7 +349,31 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     };
 
     void authenticate();
-  }, []);
+  }, []); // Only run on mount, not on location changes
+
+  // Clear redirect flag when on loading page, and mark loading as complete when we leave it
+  useEffect(() => {
+    if (location.pathname === "/loading") {
+      sessionStorage.removeItem("hasRedirectedToLoading");
+      sessionStorage.removeItem("loadingRedirectUrl");
+      setShouldRedirectToLoading(false);
+    } else {
+      // When we navigate away from /loading, mark that we've completed the loading cycle
+      // This prevents redirect loops when navigating to content pages
+      const wasOnLoading = sessionStorage.getItem("wasOnLoading") === "true";
+      if (wasOnLoading) {
+        sessionStorage.setItem("hasCompletedLoading", "true");
+        sessionStorage.removeItem("wasOnLoading");
+      }
+    }
+  }, [location.pathname]);
+
+  // Track when we're on the loading page
+  useEffect(() => {
+    if (location.pathname === "/loading") {
+      sessionStorage.setItem("wasOnLoading", "true");
+    }
+  }, [location.pathname]);
 
   if (authState === "loading") {
     return <LoadingSpinner />;
@@ -301,6 +381,14 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (authState === "unauthenticated") {
     return <Navigate to="/configure" replace />;
+  }
+
+  // Redirect to loading page using React Router (client-side navigation)
+  if (shouldRedirectToLoading && location.pathname !== "/loading") {
+    const redirectUrl = sessionStorage.getItem("loadingRedirectUrl") || "/total-time";
+    // Ensure we never redirect back to /loading
+    const safeRedirectUrl = redirectUrl === "/loading" ? "/total-time" : redirectUrl;
+    return <Navigate to={`/loading?redirect=${encodeURIComponent(safeRedirectUrl)}`} replace />;
   }
 
   return <>{children}</>;
@@ -313,7 +401,12 @@ function DataWrappedLayout() {
       FallbackComponent={ErrorFallbackComponent}
       onReset={() => {
         // On error reset, redirect to loading page to re-fetch data
-        window.location.href = "/loading";
+        // Use current path as redirect, or default to /total-time
+        const currentPath = window.location.pathname;
+        const contentPages = ALL_PAGES.map(p => p.path) as string[];
+        const redirectUrl: string = contentPages.includes(currentPath) ? currentPath : "/total-time";
+        const safeRedirectUrl = redirectUrl === "/loading" ? "/total-time" : redirectUrl;
+        window.location.href = `/loading?redirect=${encodeURIComponent(safeRedirectUrl)}`;
       }}
     >
       <ScrollToTop />
@@ -344,15 +437,15 @@ const router = createBrowserRouter([
         path: "/configure",
         element: <ServerConfigurationPage />,
       },
-      {
-        path: "/loading",
-        element: <LoadingPage />,
-      },
     ],
   },
   {
     element: <DataWrappedLayout />,
     children: [
+      {
+        path: "/loading",
+        element: <LoadingPage />,
+      },
       {
         path: "/total-time",
         element: <TotalTimePage />,

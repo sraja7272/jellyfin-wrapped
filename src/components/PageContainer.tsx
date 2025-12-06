@@ -96,10 +96,23 @@ const PageContainer = ({
 const Container = styled("div", {
   position: "relative",
   minHeight: "100vh",
+  width: "100%",
   display: "flex",
   flexDirection: "column",
-  background: "linear-gradient(180deg, #030304 0%, #08090c 25%, #0d0f14 65%, #030304 100%)",
-  overflow: "hidden",
+  background: "#060809",
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "linear-gradient(180deg, #060809 0%, #0c0e10 25%, #111318 65%, #060809 100%)",
+    backgroundSize: "100% 100vh",
+    backgroundRepeat: "repeat-y",
+    pointerEvents: "none",
+    zIndex: 0,
+  },
 });
 
 const BackgroundMesh = styled("div", {
