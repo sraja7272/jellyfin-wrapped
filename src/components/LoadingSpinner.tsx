@@ -7,46 +7,44 @@ export function LoadingSpinner() {
       <BackgroundMesh />
       <GeometricPatterns>
         <Ring
-          as={motion.div}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          style={{ willChange: "transform", transform: "translateZ(0)" }}
+          style={{ 
+            width: "220px", 
+            height: "220px",
+            animation: "spin 20s linear infinite",
+          }}
         />
         <Ring
-          as={motion.div}
-          style={{ width: "300px", height: "300px", willChange: "transform", transform: "translateZ(0)" }}
-          animate={{ rotate: -360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          style={{ 
+            width: "300px", 
+            height: "300px",
+            animation: "spin-reverse 25s linear infinite",
+          }}
         />
       </GeometricPatterns>
       <SpinnerWrapper>
         <SpinnerOuter
-          as={motion.div}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
-          style={{ willChange: "transform" }}
+          style={{ 
+            animation: "spin 1.8s linear infinite",
+          }}
         />
         <SpinnerMiddle
-          as={motion.div}
-          animate={{ rotate: -360 }}
-          transition={{ duration: 1.3, repeat: Infinity, ease: "linear" }}
-          style={{ willChange: "transform" }}
+          style={{ 
+            animation: "spin-reverse 1.3s linear infinite",
+          }}
         />
         <SpinnerCore
-          as={motion.div}
-          animate={{ 
-            scale: [1, 1.3, 1],
-            opacity: [0.6, 1, 0.6],
+          style={{ 
+            animation: "pulse-scale 1.2s ease-in-out infinite",
           }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-          style={{ willChange: "transform, opacity" }}
         />
         <LoadingText
           as={motion.p}
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          style={{ willChange: "opacity" }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          style={{ 
+            animation: "pulse-opacity 2.5s ease-in-out infinite",
+          }}
         >
           Loading your recap...
         </LoadingText>

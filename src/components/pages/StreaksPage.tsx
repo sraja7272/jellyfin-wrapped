@@ -22,13 +22,13 @@ export default function StreaksPage() {
         as={motion.div}
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <Badge
           as={motion.div}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
         >
           <BadgeIcon>
             <Sparkles size={14} />
@@ -40,7 +40,7 @@ export default function StreaksPage() {
           as={motion.h1}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
         >
           Your Viewing Streaks
         </Title>
@@ -50,7 +50,7 @@ export default function StreaksPage() {
             as={motion.div}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            transition={{ delay: 0.6, duration: 0.4 }}
           >
             <StatIcon>
               <Flame size={24} />
@@ -64,7 +64,7 @@ export default function StreaksPage() {
             as={motion.div}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
+            transition={{ delay: 0.7, duration: 0.4 }}
           >
             <StatIcon>
               <Clock size={24} />
@@ -82,7 +82,7 @@ export default function StreaksPage() {
             as={motion.div}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
+            transition={{ delay: 0.8, duration: 0.4 }}
           >
             <StatIcon>
               <Calendar size={24} />
@@ -97,7 +97,7 @@ export default function StreaksPage() {
           as={motion.p}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.6 }}
+          transition={{ delay: 1, duration: 0.4 }}
         >
           {data.currentStreak > 0
             ? `You're on a ${data.currentStreak}-day streak! Keep it going! 🔥`
