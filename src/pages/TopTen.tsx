@@ -255,7 +255,7 @@ export const TopTen = () => {
                       </ItemPoster>
                       <ItemInfo>
                         <ItemTitle>
-                          {movie.name}
+                          <TitleText>{movie.name}</TitleText>
                           {isTopMovie && (selectedMovie !== null || selectedShow !== null) && (
                             <TopBadge>Your #1</TopBadge>
                           )}
@@ -316,7 +316,7 @@ export const TopTen = () => {
                         </ItemPoster>
                         <ItemInfo>
                           <ItemTitle>
-                            {show.item.name}
+                            <TitleText>{show.item.name}</TitleText>
                             {isTopShow && (selectedMovie !== null || selectedShow !== null) && (
                               <TopBadge>Your #1</TopBadge>
                             )}
@@ -546,13 +546,30 @@ const ItemTitle = styled("h3", {
   fontWeight: 600,
   color: "#f8fafc",
   marginBottom: "5px",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
   letterSpacing: "-0.01em",
   display: "flex",
   alignItems: "center",
   gap: "0.5rem",
+  flexWrap: "wrap",
+});
+
+const TitleText = styled("span", {
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  flex: "1 1 auto",
+  minWidth: 0, // Allow text to shrink
+  
+  "@media (max-width: 768px)": {
+    whiteSpace: "normal",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    lineHeight: "1.4",
+    minHeight: "2.8em", // Ensure space for 2 lines
+  },
 });
 
 const ItemMeta = styled("p", {
@@ -702,6 +719,10 @@ const TopBadge = styled("span", {
   textTransform: "uppercase",
   letterSpacing: "0.05em",
   marginLeft: "0.5rem",
+  
+  "@media (max-width: 768px)": {
+    display: "none",
+  },
 });
 
 const GuessBadge = styled("span", {
@@ -717,4 +738,8 @@ const GuessBadge = styled("span", {
   textTransform: "uppercase",
   letterSpacing: "0.05em",
   marginLeft: "0.5rem",
+  
+  "@media (max-width: 768px)": {
+    display: "none",
+  },
 });
