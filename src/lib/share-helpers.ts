@@ -28,6 +28,7 @@ async function waitForImages(element: HTMLElement): Promise<void> {
   await Promise.all(imagePromises);
 }
 
+
 // Get options for html-to-image
 // html-to-image handles modern CSS, gradients, SVG, and background-clip: text much better
 function getImageOptions() {
@@ -167,8 +168,8 @@ export async function copyImageToClipboard(element: HTMLElement): Promise<void> 
         try {
           document.execCommand('copy');
           console.warn("Clipboard API not available, used execCommand fallback");
-        } catch (err) {
-          console.error("Failed to copy to clipboard:", err);
+        } catch {
+          console.error("Failed to copy to clipboard");
           throw new Error("Clipboard API not supported and execCommand failed");
         } finally {
           document.body.removeChild(textarea);
