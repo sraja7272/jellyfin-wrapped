@@ -191,7 +191,7 @@ export default function SharePage() {
           as={motion.div}
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <Badge>
             <BadgeIcon>
@@ -213,19 +213,20 @@ export default function SharePage() {
                   left: centerOffset - (cards.length - 1) * (cardWidth + gap),
                   right: centerOffset 
                 } : undefined}
-                dragElastic={0.1}
+                dragElastic={0.05}
+                dragMomentum={false}
                 onDragEnd={handleDragEnd}
                 animate={!isMobile ? { 
                   x: cards.length > 0 && centerOffset > 0 ? centerOffset - currentIndex * (cardWidth + gap) : 0 
                 } : {}}
-                transition={!isMobile ? { type: "spring", stiffness: 300, damping: 30 } : {}}
+                transition={!isMobile ? { 
+                  type: "tween",
+                  ease: [0.25, 0.1, 0.25, 1],
+                  duration: 0.4
+                } : {}}
                 initial={false}
                 style={{ 
                   willChange: !isMobile ? "transform" : "auto",
-                  transform: "translateZ(0)",
-                  WebkitTransform: "translateZ(0)",
-                  backfaceVisibility: "hidden",
-                  WebkitBackfaceVisibility: "hidden",
                 }}
               >
                 {/* Total Time Card */}
@@ -910,7 +911,9 @@ const CarouselContainer = styled("div", {
     msOverflowStyle: "none", // IE/Edge
     scrollPaddingLeft: "5vw", // Padding to allow first card to center
     scrollPaddingRight: "5vw", // Padding to allow last card to center
-    touchAction: "pan-x", // Optimize for horizontal scrolling only
+    touchAction: "pan-x pan-y pinch-zoom", // Optimize for horizontal scrolling
+    transform: "translateZ(0)", // GPU acceleration
+    WebkitTransform: "translateZ(0)",
     
     "&::-webkit-scrollbar": {
       display: "none", // Chrome/Safari
@@ -936,6 +939,11 @@ const CarouselTrack = styled("div", {
   gap: "2rem",
   cursor: "grab",
   userSelect: "none",
+  transform: "translateZ(0)",
+  WebkitTransform: "translateZ(0)",
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
+  willChange: "transform",
   
   "&:active": {
     cursor: "grabbing",
@@ -950,6 +958,7 @@ const CarouselTrack = styled("div", {
     paddingLeft: "5vw", // Padding to allow first card to center (half of remaining 10vw)
     paddingRight: "5vw", // Padding to allow last card to center (half of remaining 10vw)
     display: "flex",
+    willChange: "auto", // Let browser handle scroll optimization
   },
 });
 
@@ -958,6 +967,8 @@ const CardSlide = styled("div", {
   width: "400px",
   display: "flex",
   justifyContent: "center",
+  transform: "translateZ(0)", // GPU acceleration
+  WebkitTransform: "translateZ(0)",
   
   "@media (max-width: 768px)": {
     width: "90vw", // 90% of viewport width (10% smaller than full width)
@@ -975,7 +986,8 @@ const CardSlide = styled("div", {
 const NavButton = styled("button", {
   position: "absolute",
   top: "calc(350px + 1rem)", // Center on card (700px / 2) + some spacing
-  transform: "translateY(-50%)",
+  transform: "translateY(-50%) translateZ(0)",
+  WebkitTransform: "translateY(-50%) translateZ(0)",
   width: "48px",
   height: "48px",
   borderRadius: "50%",
@@ -986,12 +998,16 @@ const NavButton = styled("button", {
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
-  transition: "all 0.3s ease",
+  transition: "transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease",
+  willChange: "transform",
   zIndex: 10,
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
   
   "&:hover:not(:disabled)": {
     background: "rgba(0, 240, 255, 0.2)",
-    transform: "translateY(-50%) scale(1.1)",
+    transform: "translateY(-50%) scale(1.1) translateZ(0)",
+    WebkitTransform: "translateY(-50%) scale(1.1) translateZ(0)",
   },
   
   "&:disabled": {
@@ -1022,7 +1038,12 @@ const Dot = styled("button", {
   border: "none",
   background: "rgba(255, 255, 255, 0.2)",
   cursor: "pointer",
-  transition: "all 0.3s ease",
+  transition: "width 0.3s ease, border-radius 0.3s ease, background-color 0.3s ease",
+  transform: "translateZ(0)",
+  WebkitTransform: "translateZ(0)",
+  willChange: "width, border-radius, background-color",
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
   
   variants: {
     active: {
