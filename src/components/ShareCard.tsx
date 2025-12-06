@@ -1,8 +1,7 @@
-import { ReactNode, useRef } from "react";
+import { ReactNode, useRef, useState, useEffect } from "react";
 import { styled } from "@stitches/react";
 import { Download, Copy, Share2 } from "lucide-react";
 import { downloadImage, copyImageToClipboard, shareImage } from "@/lib/share-helpers";
-import { useState } from "react";
 
 interface ShareCardProps {
   title: string;
@@ -14,6 +13,17 @@ export function ShareCard({ title, children, filename }: ShareCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [generatingButton, setGeneratingButton] = useState<"download" | "copy" | "share" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -66,21 +76,25 @@ export function ShareCard({ title, children, filename }: ShareCardProps) {
         {children}
       </CardContent>
       <Actions>
-        <ActionButton onClick={handleDownload} disabled={generatingButton !== null}>
-          {generatingButton === "download" ? (
-            <Spinner />
-          ) : (
-            <Download size={18} />
-          )}
-        </ActionButton>
-        <ActionButton onClick={handleCopy} disabled={generatingButton !== null}>
-          {generatingButton === "copy" ? (
-            <Spinner />
-          ) : (
-            <Copy size={18} />
-          )}
-        </ActionButton>
-        <ActionButton onClick={handleShare} disabled={generatingButton !== null}>
+        {!isMobile && (
+          <>
+            <ActionButton onClick={() => { handleDownload().catch(() => {}); }} disabled={generatingButton !== null}>
+              {generatingButton === "download" ? (
+                <Spinner />
+              ) : (
+                <Download size={18} />
+              )}
+            </ActionButton>
+            <ActionButton onClick={() => { handleCopy().catch(() => {}); }} disabled={generatingButton !== null}>
+              {generatingButton === "copy" ? (
+                <Spinner />
+              ) : (
+                <Copy size={18} />
+              )}
+            </ActionButton>
+          </>
+        )}
+        <ActionButton onClick={() => { handleShare().catch(() => {}); }} disabled={generatingButton !== null}>
           {generatingButton === "share" ? (
             <Spinner />
           ) : (
@@ -180,9 +194,7 @@ const ActionButton = styled("button", {
   },
   
   "@media (max-width: 768px)": {
-    flex: 1, // Take up equal space
-    width: "auto",
-    minWidth: 0, // Allow flex items to shrink below their content size
+    width: "100%", // Full width on mobile when it's the only button
     padding: "0.75rem",
     gap: "0",
   },
