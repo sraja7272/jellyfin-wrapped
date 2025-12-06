@@ -100,28 +100,31 @@ const Subtitle = styled("p", {
 });
 
 const ContentGrid = styled("div", {
-  display: "flex",
-  flexWrap: "wrap",
-  justifyContent: "center",
-  gap: "20px",
+  display: "grid",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  gap: "12px",
   alignItems: "stretch",
+  justifyContent: "center",
   
   "& > *": {
-    width: "calc(50% - 10px)",
-    maxWidth: "200px",
-    minWidth: "140px",
+    maxWidth: "100%",
+    minWidth: 0,
   },
   
   "@media (min-width: 640px)": {
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 200px))",
+    gap: "20px",
+    justifyContent: "center",
     "& > *": {
-      width: "calc(33.333% - 14px)",
       maxWidth: "200px",
     },
   },
   
   "@media (min-width: 768px)": {
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 200px))",
+    gap: "20px",
+    justifyContent: "center",
     "& > *": {
-      width: "calc(25% - 15px)",
       maxWidth: "200px",
     },
   },
