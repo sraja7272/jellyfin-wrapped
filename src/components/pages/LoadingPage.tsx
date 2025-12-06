@@ -366,28 +366,24 @@ export function LoadingPage() {
       {/* Geometric patterns */}
       <GeometricLayer>
         <Ring
-          as={motion.div}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          style={{ willChange: "transform", transform: "translateZ(0)" }}
+          style={{ 
+            width: "220px",
+            height: "220px",
+            animation: "spin 25s linear infinite",
+          }}
         />
         <Ring
-          as={motion.div}
-          style={{ width: "350px", height: "350px", willChange: "transform", transform: "translateZ(0)" }}
-          animate={{ rotate: -360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          style={{ 
+            width: "350px", 
+            height: "350px",
+            animation: "spin-reverse 30s linear infinite",
+          }}
         />
         <HexGrid />
       </GeometricLayer>
       
       <OrbLayer>
         <Orb 
-          as={motion.div}
-          animate={{ 
-            scale: [1, 1.25, 1],
-            opacity: [0.25, 0.45, 0.25],
-          }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             top: "30%", 
             left: "50%", 
@@ -396,29 +392,19 @@ export function LoadingPage() {
             width: "700px", 
             height: "700px", 
             background: "radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%)",
-            willChange: "transform, opacity",
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
+            animation: "pulse-scale 5s ease-in-out infinite",
           }}
         />
         <Orb 
-          as={motion.div}
-          animate={{ 
-            scale: [1, 1.15, 1],
-            opacity: [0.15, 0.3, 0.15],
-          }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           style={{ 
             top: "40%", 
             left: "30%", 
             width: "400px", 
             height: "400px", 
             background: "radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%)",
-            willChange: "transform, opacity",
             transform: "translateZ(0)",
             WebkitTransform: "translateZ(0)",
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
+            animation: "pulse-scale 7s ease-in-out infinite 1s",
           }}
         />
       </OrbLayer>
@@ -456,7 +442,7 @@ export function LoadingPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -24 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <LoadingMessage>{messages[messageIndex]}</LoadingMessage>
           </motion.div>

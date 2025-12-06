@@ -387,6 +387,46 @@ body {
   }
 }
 
+@keyframes spin-reverse {
+  to {
+    transform: rotate(-360deg) translateZ(0);
+  }
+}
+
+@keyframes pulse-scale {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3) translateZ(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-opacity {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Optimize framer-motion animations on mobile - reduce complexity */
+@media (max-width: 768px) {
+  /* Disable complex animations on mobile for better performance */
+  [data-framer-component] {
+    /* Reduce animation complexity */
+    animation-duration: 0.3s !important;
+  }
+  
+  /* Simplify infinite animations */
+  [style*="repeat: Infinity"] {
+    animation-play-state: paused;
+  }
+}
+
 @keyframes slide-up {
   from {
     opacity: 0;

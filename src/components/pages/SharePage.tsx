@@ -21,6 +21,7 @@ export default function SharePage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [centerOffset, setCenterOffset] = useState(0);
   const [cardWidth, setCardWidth] = useState(400);
+  const [isDragging, setIsDragging] = useState(false);
   const gap = 32;
   const isMobile = useIsMobile();
 
@@ -159,16 +160,25 @@ export default function SharePage() {
     };
   }, [isMobile, cards.length]);
 
-  if (isLoading || comparisonsLoading || topTenLoading) {
-    return <LoadingSpinner />;
-  }
+  // Calculate transform value for CSS transition (desktop only)
+  // Use useMemo to prevent recalculation on every render
+  const carouselTransform = useMemo(() => {
+    if (isMobile || cards.length === 0 || centerOffset === 0) return "translateX(0px)";
+    const x = centerOffset - currentIndex * (cardWidth + gap);
+    return `translateX(${x}px) translateZ(0)`;
+  }, [isMobile, currentIndex, centerOffset, cardWidth, gap, cards.length]);
+
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setIsDragging(false);
     const threshold = 50;
     if (info.offset.x > threshold && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+      setCurrentIndex(prev => prev - 1);
     } else if (info.offset.x < -threshold && currentIndex < cards.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      setCurrentIndex(prev => prev + 1);
     }
   };
 
@@ -184,14 +194,18 @@ export default function SharePage() {
     }
   };
 
+  if (isLoading || comparisonsLoading || topTenLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <PageContainer>
       <Container size="4" p={isMobile ? "0" : "4"}>
         <HeaderSection
           as={motion.div}
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <Badge>
             <BadgeIcon>
@@ -215,18 +229,12 @@ export default function SharePage() {
                 } : undefined}
                 dragElastic={0.05}
                 dragMomentum={false}
+                dragPropagation={false}
+                onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                animate={!isMobile ? { 
-                  x: cards.length > 0 && centerOffset > 0 ? centerOffset - currentIndex * (cardWidth + gap) : 0 
-                } : {}}
-                transition={!isMobile ? { 
-                  type: "tween",
-                  ease: [0.25, 0.1, 0.25, 1],
-                  duration: 0.4
-                } : {}}
-                initial={false}
                 style={{ 
-                  willChange: !isMobile ? "transform" : "auto",
+                  transform: !isMobile && !isDragging ? carouselTransform : undefined,
+                  transition: !isMobile && !isDragging ? "transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)" : "none",
                 }}
               >
                 {/* Total Time Card */}
@@ -944,9 +952,12 @@ const CarouselTrack = styled("div", {
   backfaceVisibility: "hidden",
   WebkitBackfaceVisibility: "hidden",
   willChange: "transform",
+  // Use CSS transitions for smooth animation
+  transition: "transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)",
   
   "&:active": {
     cursor: "grabbing",
+    transition: "none", // Disable transition during drag
   },
   
   "@media (max-width: 768px)": {
@@ -959,6 +970,7 @@ const CarouselTrack = styled("div", {
     paddingRight: "5vw", // Padding to allow last card to center (half of remaining 10vw)
     display: "flex",
     willChange: "auto", // Let browser handle scroll optimization
+    transition: "none", // Native scroll doesn't need transition
   },
 });
 

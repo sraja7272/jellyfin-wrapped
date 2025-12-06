@@ -68,7 +68,7 @@ const ServerConfigurationPage = () => {
       opacity: 1,
       transition: {
         duration: 0.6,
-        ease: [0.16, 1, 0.3, 1],
+        ease: [0.25, 0.1, 0.25, 1],
       },
     },
   };
@@ -78,17 +78,23 @@ const ServerConfigurationPage = () => {
       {/* Geometric background elements */}
       <GeometricBackground>
         <GeometricShape
-          as={motion.div}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          style={{ top: "10%", left: "5%", width: "150px", height: "150px" }}
+          style={{ 
+            animation: "spin 40s linear infinite",
+            top: "10%", 
+            left: "5%", 
+            width: "150px", 
+            height: "150px" 
+          }}
         />
         <GeometricShape
-          as={motion.div}
           variant="ring"
-          animate={{ rotate: -360 }}
-          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-          style={{ bottom: "15%", right: "8%", width: "200px", height: "200px" }}
+          style={{ 
+            animation: "spin-reverse 35s linear infinite",
+            bottom: "15%", 
+            right: "8%", 
+            width: "200px", 
+            height: "200px" 
+          }}
         />
       </GeometricBackground>
 

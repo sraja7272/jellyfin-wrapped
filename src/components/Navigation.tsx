@@ -165,7 +165,7 @@ const Navigation = () => {
               initial={{ x: "-100%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0 }}
-              transition={{ type: "spring", damping: 28, stiffness: 200 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {/* Top gradient accent */}
               <TopAccent />
@@ -212,7 +212,7 @@ const Navigation = () => {
                         <ActiveIndicator
                           as={motion.div}
                           layoutId="activeIndicator"
-                          transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
                         />
                       )}
                     </NavItem>
