@@ -27,7 +27,7 @@
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
     "date-fns-holiday-us": "^1.1.0",
-    "framer-motion": "^11.15.0",
+    "framer-motion": "^12.0.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.562.0",
     "react": "^18.3.1",
