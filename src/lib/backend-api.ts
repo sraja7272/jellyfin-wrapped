@@ -149,6 +149,10 @@ export interface FunComparisons {
   }>;
 }
 
+export interface AuthConfig {
+  oidcEnabled: boolean;
+}
+
 // Get backend URL from environment
 export const getBackendUrl = (): string => {
   // Check for runtime environment (Docker)
@@ -185,6 +189,51 @@ export const clearJwt = (): void => {
 // Check if user is authenticated
 export const isAuthenticated = (): boolean => {
   return !!getJwt();
+};
+
+// Fetch auth configuration (whether OIDC is enabled)
+export const getAuthConfig = async (): Promise<AuthConfig> => {
+  const backendUrl = getBackendUrl();
+  if (!backendUrl) {
+    return { oidcEnabled: false };
+  }
+  try {
+    const response = await fetch(`${backendUrl}/auth/config`);
+    if (!response.ok) {
+      return { oidcEnabled: false };
+    }
+    return response.json() as Promise<AuthConfig>;
+  } catch {
+    return { oidcEnabled: false };
+  }
+};
+
+// Handle OIDC callback — check URL for token or error parameters
+// Returns the result of parsing URL params; caller decides what to do next
+export const handleOidcCallback = (): {
+  token: boolean;
+  error: string | null;
+  username: string | null;
+  claim: string | null;
+} => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const error = params.get('error');
+  const username = params.get('username');
+  const claim = params.get('claim');
+
+  if (token) {
+    setJwt(token);
+    window.history.replaceState({}, '', window.location.pathname);
+    return { token: true, error: null, username: null, claim: null };
+  }
+
+  if (error) {
+    window.history.replaceState({}, '', window.location.pathname);
+    return { token: false, error, username, claim };
+  }
+
+  return { token: false, error: null, username: null, claim: null };
 };
 
 // Login with username and password

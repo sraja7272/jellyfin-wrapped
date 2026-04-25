@@ -1,8 +1,18 @@
 import { FastifyInstance } from 'fastify';
 
+export interface OidcConfig {
+  issuerUrl: string;
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  frontendUrl: string;
+  usernameClaim: string;
+}
+
 export interface AppConfig {
   jellyfinServerUrl: string;
   jellyfinApiKey: string;
+  oidc?: OidcConfig;
 }
 
 declare module 'fastify' {

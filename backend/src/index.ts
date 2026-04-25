@@ -16,6 +16,14 @@ const JELLYFIN_SERVER_URL = process.env.JELLYFIN_SERVER_URL;
 const JELLYFIN_API_KEY = process.env.JELLYFIN_API_KEY;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// OIDC environment variables (all optional — set all to enable OIDC)
+const OIDC_ISSUER_URL = process.env.OIDC_ISSUER_URL;
+const OIDC_CLIENT_ID = process.env.OIDC_CLIENT_ID;
+const OIDC_CLIENT_SECRET = process.env.OIDC_CLIENT_SECRET;
+const OIDC_REDIRECT_URI = process.env.OIDC_REDIRECT_URI;
+const FRONTEND_URL = process.env.FRONTEND_URL;
+const OIDC_USERNAME_CLAIM = process.env.OIDC_USERNAME_CLAIM || 'preferred_username';
+
 // CORS allowed origins based on environment
 const PRODUCTION_ORIGIN = 'https://wrapped.raja-house.com';
 const DEVELOPMENT_ORIGINS = [PRODUCTION_ORIGIN, 'http://localhost:5173'];
@@ -41,34 +49,52 @@ if (!JELLYFIN_API_KEY) {
   process.exit(1);
 }
 
-// Get CORS origins based on NODE_ENV
-function getCorsOrigins(): string[] {
-  if (NODE_ENV === 'production') {
-    console.log(`CORS: Production mode - allowing only ${PRODUCTION_ORIGIN}`);
-    return [PRODUCTION_ORIGIN];
-  } else {
-    console.log(`CORS: Development mode - allowing ${DEVELOPMENT_ORIGINS.join(', ')}`);
-    return DEVELOPMENT_ORIGINS;
-  }
+// Validate OIDC configuration — all or nothing
+const oidcVars = [OIDC_ISSUER_URL, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_REDIRECT_URI, FRONTEND_URL];
+const oidcPartiallyConfigured = oidcVars.some(Boolean);
+const oidcFullyConfigured = oidcVars.every(v => !!v);
+
+if (oidcPartiallyConfigured && !oidcFullyConfigured) {
+  console.error('OIDC is partially configured. All of these must be set together:');
+  console.error('  OIDC_ISSUER_URL, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_REDIRECT_URI, FRONTEND_URL');
+  process.exit(1);
 }
+
+if (oidcFullyConfigured) {
+  console.log('OIDC authentication enabled. Password login is disabled.');
+  console.log(`  Issuer: ${OIDC_ISSUER_URL}`);
+  console.log(`  Client ID: ${OIDC_CLIENT_ID}`);
+  console.log(`  Redirect URI: ${OIDC_REDIRECT_URI}`);
+  console.log(`  Frontend URL: ${FRONTEND_URL}`);
+  console.log(`  Username claim: ${OIDC_USERNAME_CLAIM}`);
+}
+
+// Compute allowed CORS origins once at startup
+function buildCorsOrigins(): string[] {
+  const origins: string[] = [];
+  if (NODE_ENV === 'production') {
+    origins.push(PRODUCTION_ORIGIN);
+  } else {
+    origins.push(...DEVELOPMENT_ORIGINS);
+  }
+  // Add FRONTEND_URL if configured (for OIDC setups where frontend URL may differ)
+  if (FRONTEND_URL && !origins.includes(FRONTEND_URL)) {
+    origins.push(FRONTEND_URL);
+  }
+  return origins;
+}
+
+const ALLOWED_ORIGINS = buildCorsOrigins();
+console.log(`CORS: Allowing origins: ${ALLOWED_ORIGINS.join(', ')}`);
 
 // Helper function to set CORS headers
 function setCorsHeaders(request: any, reply: any) {
   const origin = request.headers.origin;
-  const allowedOrigins = getCorsOrigins();
-  
-  // Log for debugging
-  console.log(`[CORS] Request origin: ${origin}, Allowed origins: ${allowedOrigins.join(', ')}, NODE_ENV: ${NODE_ENV}`);
-  
-  // Only set CORS headers if origin is in our allowed list
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
     reply.header('Access-Control-Allow-Origin', origin);
     reply.header('Access-Control-Allow-Credentials', 'true');
     reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    console.log(`[CORS] Headers set for origin: ${origin}`);
-  } else if (origin) {
-    console.warn(`[CORS] Origin ${origin} not in allowed list: ${allowedOrigins.join(', ')}`);
   }
 }
 
@@ -76,20 +102,13 @@ function setCorsHeaders(request: any, reply: any) {
 // CORS plugin - handles preflight OPTIONS and sets headers
 await fastify.register(cors, {
   origin: (origin, callback) => {
-    const allowedOrigins = getCorsOrigins();
-    console.log(`[CORS Plugin] Checking origin: ${origin}, Allowed: ${allowedOrigins.join(', ')}, NODE_ENV: ${NODE_ENV}`);
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (e.g. curl, mobile apps, server-to-server)
     if (!origin) {
-      console.log(`[CORS Plugin] No origin, allowing request`);
       return callback(null, true);
     }
-    // Only allow origins from our whitelist
-    if (allowedOrigins.includes(origin)) {
-      console.log(`[CORS Plugin] Origin ${origin} is allowed`);
+    if (ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(`[CORS Plugin] Origin ${origin} NOT allowed. Allowed origins: ${allowedOrigins.join(', ')}`);
       callback(new Error('Not allowed by CORS'), false);
     }
   },
@@ -113,6 +132,16 @@ fastify.addHook('onSend', async (request, reply) => {
 fastify.decorate('config', {
   jellyfinServerUrl: JELLYFIN_SERVER_URL,
   jellyfinApiKey: JELLYFIN_API_KEY,
+  ...(oidcFullyConfigured && {
+    oidc: {
+      issuerUrl: OIDC_ISSUER_URL!,
+      clientId: OIDC_CLIENT_ID!,
+      clientSecret: OIDC_CLIENT_SECRET!,
+      redirectUri: OIDC_REDIRECT_URI!,
+      frontendUrl: FRONTEND_URL!,
+      usernameClaim: OIDC_USERNAME_CLAIM,
+    },
+  }),
 });
 
 // Register routes
