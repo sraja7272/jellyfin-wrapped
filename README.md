@@ -9,6 +9,7 @@ A web application that generates personalized year-in-review statistics for your
 - ⏱️ Track your total watching/listening time
 - 📈 Get insights into your viewing habits
 - 🔒 **Secure backend API** - Admin API key never exposed to browsers
+- 🔑 **OIDC/SSO support** - Authenticate via any OpenID Connect provider (PocketId, Authentik, Keycloak, etc.)
 - 📱 Responsive design for mobile and desktop
 
 ## Architecture
@@ -30,9 +31,12 @@ The backend provides a proper REST API:
 
 | Endpoint | Description |
 |----------|-------------|
+| `GET /auth/config` | Get auth configuration (OIDC enabled?) |
 | `POST /auth/login` | Authenticate with Jellyfin credentials |
 | `POST /auth/logout` | Invalidate session |
 | `GET /auth/verify` | Verify session is valid |
+| `GET /auth/oidc/login` | Initiate OIDC login flow (redirects to provider) |
+| `GET /auth/oidc/callback` | OIDC provider callback |
 | `GET /api/user` | Get current user info |
 | `GET /api/movies` | List movies with playback stats |
 | `GET /api/shows` | List shows with episode stats |
@@ -92,6 +96,34 @@ docker compose up -d
 
 For public deployments, put a reverse proxy (like Traefik, Caddy, or nginx) in front of the services to handle TLS/HTTPS. Make sure to update `BACKEND_URL` to use `https://` when using HTTPS.
 
+### OIDC/SSO Authentication (Optional)
+
+Jellyfin Wrapped supports authentication via any OpenID Connect (OIDC) provider such as PocketId, Authentik, Keycloak, or Authelia.
+
+When OIDC is configured, the username/password login is replaced with a **"Sign in with SSO"** button. Users authenticate through your OIDC provider, and the app matches their OIDC username to a Jellyfin user account.
+
+**Prerequisites:**
+- An OIDC provider with a client application configured (Authorization Code flow)
+- The OIDC redirect URI must be set to `http://your-backend:3001/auth/oidc/callback`
+- Users must have matching usernames in both the OIDC provider and Jellyfin
+
+**Configuration:**
+
+Set these environment variables on the **backend** service:
+
+```yaml
+environment:
+  - OIDC_ISSUER_URL=https://your-oidc-provider.com
+  - OIDC_CLIENT_ID=your-client-id
+  - OIDC_CLIENT_SECRET=your-client-secret
+  - OIDC_REDIRECT_URI=http://your-backend:3001/auth/oidc/callback
+  - FRONTEND_URL=http://your-frontend-url
+  # Optional: override which claim maps to the Jellyfin username (default: preferred_username)
+  # - OIDC_USERNAME_CLAIM=preferred_username
+```
+
+> **Note:** All five OIDC variables must be set together. If any are missing, the server will exit with a clear error. If none are set, the app uses standard Jellyfin password authentication.
+
 ## Development
 
 ### Prerequisites
@@ -135,6 +167,12 @@ npm run dev
 | `NODE_ENV` | Recommended | Set to `production` for production deployments. Controls CORS: <br>• **Production**: allows `https://wrapped.raja-house.com` <br>• **Development**: allows `https://wrapped.raja-house.com` + `http://localhost:5173` |
 | `PORT` | No | Server port (default: 3001) |
 | `HOST` | No | Server host (default: 0.0.0.0) |
+| `OIDC_ISSUER_URL` | For OIDC | OIDC provider issuer URL (e.g., `https://id.example.com`) |
+| `OIDC_CLIENT_ID` | For OIDC | Client ID from your OIDC provider |
+| `OIDC_CLIENT_SECRET` | For OIDC | Client secret from your OIDC provider |
+| `OIDC_REDIRECT_URI` | For OIDC | Callback URL: `http://your-backend:3001/auth/oidc/callback` |
+| `FRONTEND_URL` | For OIDC | URL where the frontend is accessible (for post-login redirect) |
+| `OIDC_USERNAME_CLAIM` | No | OIDC claim for Jellyfin username matching (default: `preferred_username`) |
 
 **Frontend (Docker/Production):**
 | Variable | Required | Description |
@@ -170,7 +208,7 @@ docker build -t jellyfin-wrapped-backend .
 
 - **Frontend**: React 18, TypeScript, Vite, Radix UI, TailwindCSS, Framer Motion
 - **Backend**: Node.js, Fastify, TypeScript
-- **Authentication**: JWT with in-memory session storage
+- **Authentication**: JWT with in-memory session storage, optional OIDC/SSO via `openid-client`
 
 ## Contributing
 
@@ -185,6 +223,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - Sessions are stored in memory and cleared on backend restart
 - **Input validation** - All date parameters are validated to prevent SQL injection
 - **CORS protection** - Only allowed origins can access the API (based on `NODE_ENV`)
+- **OIDC security** - Authorization Code flow with server-side token exchange; client secrets never exposed to the browser; state and nonce parameters prevent CSRF and replay attacks
 - **Strong JWT requirement** - JWT secret must be at least 32 characters
 
 ## Demo Screenshots

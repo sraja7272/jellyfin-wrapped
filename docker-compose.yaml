@@ -26,6 +26,15 @@ services:
       # Production: CORS allows only https://wrapped.raja-house.com
       # Development: CORS allows https://wrapped.raja-house.com and http://localhost:5173
       - NODE_ENV=production
+      # Optional: OIDC/SSO Authentication
+      # Set ALL of these to enable OIDC login (disables password login when set)
+      # - OIDC_ISSUER_URL=https://your-oidc-provider.com
+      # - OIDC_CLIENT_ID=your-client-id
+      # - OIDC_CLIENT_SECRET=your-client-secret
+      # - OIDC_REDIRECT_URI=http://localhost:3001/auth/oidc/callback
+      # - FRONTEND_URL=http://localhost
+      # Optional: Override which OIDC claim maps to the Jellyfin username (default: preferred_username)
+      # - OIDC_USERNAME_CLAIM=preferred_username
 
   frontend:
     # Build docker image from source

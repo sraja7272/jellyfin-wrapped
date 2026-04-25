@@ -15,7 +15,8 @@
   "dependencies": {
     "@fastify/cors": "^11.0.0",
     "@fastify/jwt": "^10.0.0",
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "openid-client": "^6.8.3"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
@@ -23,4 +24,3 @@
     "typescript": "^5.5.3"
   }
 }
-

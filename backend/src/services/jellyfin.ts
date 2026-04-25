@@ -146,3 +146,28 @@ export async function getShowEpisodeStats(
   };
 }
 
+// Look up a Jellyfin user by username using the admin API key
+// Used for OIDC authentication to find the matching Jellyfin user
+export async function findJellyfinUserByName(
+  serverUrl: string,
+  apiKey: string,
+  username: string
+): Promise<{ Id: string; Name: string } | null> {
+  const response = await fetch(`${serverUrl}/Users`, {
+    headers: { 'X-Emby-Token': apiKey },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Jellyfin users: ${response.status}`);
+  }
+
+  const users = await response.json() as Array<{ Id: string; Name: string }>;
+
+  // Case-insensitive username match
+  const match = users.find(
+    (u) => u.Name.toLowerCase() === username.toLowerCase()
+  );
+
+  return match ?? null;
+}
+

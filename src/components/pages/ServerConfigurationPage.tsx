@@ -1,10 +1,10 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useErrorBoundary } from "react-error-boundary";
-import { User, Lock, ChevronRight, Shield, Zap } from "lucide-react";
+import { User, Lock, ChevronRight, Shield, Zap, LogIn, AlertCircle } from "lucide-react";
 
-import { login as backendLogin } from "@/lib/backend-api";
+import { login as backendLogin, getAuthConfig, handleOidcCallback, getBackendUrl, type AuthConfig } from "@/lib/backend-api";
 import {
   getCacheValue,
   JELLYFIN_USERNAME_CACHE_KEY,
@@ -21,6 +21,42 @@ const ServerConfigurationPage = () => {
   );
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [authConfig, setAuthConfig] = useState<AuthConfig | null>(null);
+  const [oidcError, setOidcError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check for OIDC callback result in URL params
+    const result = handleOidcCallback();
+
+    if (result.token) {
+      // Successfully received JWT from OIDC flow — navigate to loading
+      const availablePages = getAvailablePages();
+      const redirectUrl = availablePages.length > 0 ? availablePages[0] : "/total-time";
+      const safeRedirectUrl = redirectUrl === "/loading" ? "/total-time" : redirectUrl;
+      void navigate(`/loading?redirect=${encodeURIComponent(safeRedirectUrl)}`);
+      return;
+    }
+
+    if (result.error) {
+      switch (result.error) {
+        case "user_not_found":
+          setOidcError(
+            `No Jellyfin user found matching username "${result.username}". Make sure your Jellyfin username matches your SSO username.`
+          );
+          break;
+        case "missing_claim":
+          setOidcError(
+            `Your identity provider did not provide the expected claim "${result.claim}".`
+          );
+          break;
+        default:
+          setOidcError("Authentication failed. Please try again.");
+      }
+    }
+
+    // Fetch auth config to determine which login UI to show
+    getAuthConfig().then(setAuthConfig);
+  }, []);
 
   const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -37,10 +73,8 @@ const ServerConfigurationPage = () => {
     setIsLoading(true);
     try {
       await backendLogin(username, password);
-      // Determine redirect URL - use first available page or default to /total-time
       const availablePages = getAvailablePages();
       const redirectUrl = availablePages.length > 0 ? availablePages[0] : "/total-time";
-      // Ensure we never redirect back to /loading
       const safeRedirectUrl = redirectUrl === "/loading" ? "/total-time" : redirectUrl;
       void navigate(`/loading?redirect=${encodeURIComponent(safeRedirectUrl)}`);
     } catch (e) {
@@ -48,6 +82,12 @@ const ServerConfigurationPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSsoLogin = () => {
+    const backendUrl = getBackendUrl();
+    if (!backendUrl) return;
+    window.location.href = `${backendUrl}/auth/oidc/login`;
   };
 
   const containerVariants = {
@@ -71,6 +111,8 @@ const ServerConfigurationPage = () => {
       },
     },
   };
+
+  const isOidc = authConfig?.oidcEnabled === true;
 
   return (
     <Container>
@@ -133,56 +175,83 @@ const ServerConfigurationPage = () => {
             <Zap size={26} />
           </IconWrapper>
           <h1 style={{ fontSize: "1.85rem", fontWeight: 700, color: "#f8fafc", marginBottom: "10px", letterSpacing: "-0.03em" }}>Connect to Jellyfin</h1>
-          <p style={{ fontSize: "1rem", color: "#94a3b8", lineHeight: 1.6 }}>Enter your credentials to begin your personalized recap</p>
+          <p style={{ fontSize: "1rem", color: "#94a3b8", lineHeight: 1.6 }}>
+            {isOidc ? "Sign in with your SSO account to begin your personalized recap" : "Enter your credentials to begin your personalized recap"}
+          </p>
         </motion.div>
 
-        <form onSubmit={(e) => void handleConnect(e)}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <motion.div variants={itemVariants}>
-              <div style={{ marginBottom: "6px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", fontWeight: 500, color: "#94a3b8", marginBottom: "12px" }}>
-                  <User size={14} />
-                  Username
-                </label>
-                <div style={{ position: "relative" }}>
-                  <StyledInput
-                    type="text"
-                    placeholder="Your Jellyfin username"
-                    value={username}
-                    onChange={handleUsernameChange}
-                    required
-                  />
-                </div>
-              </div>
+        {/* Error message from OIDC callback */}
+        {oidcError && (
+          <motion.div
+            variants={itemVariants}
+            style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "14px 16px", background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "12px", marginBottom: "24px" }}
+          >
+            <AlertCircle size={16} style={{ color: "#f87171", flexShrink: 0, marginTop: "1px" }} />
+            <p style={{ fontSize: "0.875rem", color: "#f87171", lineHeight: 1.5, margin: 0 }}>{oidcError}</p>
+          </motion.div>
+        )}
 
-              <div style={{ marginBottom: "6px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", fontWeight: 500, color: "#94a3b8", marginBottom: "12px" }}>
-                  <Lock size={14} />
-                  Password
-                </label>
-                <div style={{ position: "relative" }}>
-                  <StyledInput
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={handlePasswordChange}
-                  />
-                </div>
+        {isOidc ? (
+          /* OIDC/SSO login */
+          <motion.div variants={itemVariants}>
+            <SubmitButton type="button" onClick={handleSsoLogin}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", position: "relative", zIndex: 1 }}>
+                <LogIn size={20} />
+                <span>Sign in with SSO</span>
               </div>
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
-              <SubmitButton type="submit" disabled={isLoading}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", position: "relative", zIndex: 1 }}>
-                  <span>{isLoading ? "Connecting..." : "Connect to Server"}</span>
-                  {!isLoading && <ChevronRight size={20} />}
-                  {isLoading && <LoadingSpinnerStyled />}
+              <ButtonGlow />
+            </SubmitButton>
+          </motion.div>
+        ) : (
+          /* Username/password login */
+          <form onSubmit={(e) => void handleConnect(e)}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              <motion.div variants={itemVariants}>
+                <div style={{ marginBottom: "6px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", fontWeight: 500, color: "#94a3b8", marginBottom: "12px" }}>
+                    <User size={14} />
+                    Username
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <StyledInput
+                      type="text"
+                      placeholder="Your Jellyfin username"
+                      value={username}
+                      onChange={handleUsernameChange}
+                      required
+                    />
+                  </div>
                 </div>
-                <ButtonGlow />
-              </SubmitButton>
-            </motion.div>
-          </div>
-        </form>
+
+                <div style={{ marginBottom: "6px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", fontWeight: 500, color: "#94a3b8", marginBottom: "12px" }}>
+                    <Lock size={14} />
+                    Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <StyledInput
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={handlePasswordChange}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <SubmitButton type="submit" disabled={isLoading}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", position: "relative", zIndex: 1 }}>
+                    <span>{isLoading ? "Connecting..." : "Connect to Server"}</span>
+                    {!isLoading && <ChevronRight size={20} />}
+                    {isLoading && <LoadingSpinnerStyled />}
+                  </div>
+                  <ButtonGlow />
+                </SubmitButton>
+              </motion.div>
+            </div>
+          </form>
+        )}
 
         <motion.div
           style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginTop: "32px", paddingTop: "24px", borderTop: "1px solid rgba(255, 255, 255, 0.04)" }}
@@ -193,7 +262,7 @@ const ServerConfigurationPage = () => {
             <span>100% Private</span>
           </div>
           <p style={{ fontSize: "0.8rem", color: "#475569", textAlign: "center" }}>
-            Credentials are sent securely to the backend
+            {isOidc ? "Authentication is handled securely via your identity provider" : "Credentials are sent securely to the backend"}
           </p>
         </motion.div>
       </motion.div>
