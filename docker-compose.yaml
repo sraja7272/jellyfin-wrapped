@@ -8,30 +8,35 @@ services:
     #   dockerfile: Dockerfile
 
     # Use published image from GitHub Container Registry
-    image: ghcr.io/sraja7272/jellyfin-wrapped-backend:latest
+    image: ghcr.io/aayushtheaayush2/jellyfin-wrapped-backend:latest
 
     ports:
       - "3001:3001"
     restart: unless-stopped
     container_name: jellyfin-wrapped-backend
     environment:
-      # Required: Your Jellyfin server URL (as accessible from the backend container)
+      # Required: Your Jellyfin server URL (as accessible from the backend container, e.g. LAN IP)
       - JELLYFIN_SERVER_URL=http://<your_jellyfin_server>:8096
+      # Optional: Public Jellyfin URL used by browsers to load poster/actor images
+      # Set this if JELLYFIN_SERVER_URL is a LAN IP and users access Jellyfin via a public domain
+      # - JELLYFIN_PUBLIC_URL=https://watch.yourdomain.com
       # Required: Admin API key from Jellyfin Dashboard > API Keys
       - JELLYFIN_API_KEY=<your_admin_api_key>
       # Required: Secret for signing JWT tokens (must be at least 32 characters)
       # Generate one with: openssl rand -base64 32
       - JWT_SECRET=<generate_a_random_secret_here>
       # Set to 'production' for production deployments
-      # Production: CORS allows only https://wrapped.raja-house.com
-      # Development: CORS allows https://wrapped.raja-house.com and http://localhost:5173
       - NODE_ENV=production
+      # Recommended: comma-separated list of frontend origins allowed by CORS ("*" = any).
+      # If neither CORS_ORIGINS nor FRONTEND_URL is set, all origins are allowed.
+      # - CORS_ORIGINS=http://localhost,https://wrapped.example.com
       # Optional: OIDC/SSO Authentication
-      # Set ALL of these to enable OIDC login (disables password login when set)
+      # Set ALL four OIDC_* variables to enable OIDC login (disables password login when set)
       # - OIDC_ISSUER_URL=https://your-oidc-provider.com
       # - OIDC_CLIENT_ID=your-client-id
       # - OIDC_CLIENT_SECRET=your-client-secret
       # - OIDC_REDIRECT_URI=http://localhost:3001/auth/oidc/callback
+      # Optional: frontend URL for the post-login redirect (also allowed by CORS)
       # - FRONTEND_URL=http://localhost
       # Optional: Override which OIDC claim maps to the Jellyfin username (default: preferred_username)
       # - OIDC_USERNAME_CLAIM=preferred_username
@@ -43,19 +48,18 @@ services:
     #   dockerfile: Dockerfile
 
     # Use published image from GitHub Container Registry
-    image: ghcr.io/sraja7272/jellyfin-wrapped:latest
+    image: ghcr.io/aayushtheaayush2/jellyfin-wrapped:latest
 
     ports:
       - "80:80"
     restart: unless-stopped
     container_name: jellyfin-wrapped
     environment:
-      # Required: URL where the backend is accessible FROM THE BROWSER
-      # This should be the public URL users will use to reach the backend
-      # Examples:
-      #   - http://localhost:3001 (if accessing locally)
-      #   - http://your-server-ip:3001 (if accessing over network)
-      #   - https://api.yourdomain.com (if using reverse proxy with HTTPS)
+      # Optional behind a single-domain reverse proxy (defaults to window.location.origin,
+      # and Apache proxies /api, /auth, and /health to http://backend:3001).
+      # Or set explicitly to where the backend is reachable from the browser:
+      #   - http://localhost:3001 (if accessing locally on separate port)
+      #   - https://wrapped.yourdomain.com (single-domain reverse proxy)
       - BACKEND_URL=http://localhost:3001
     depends_on:
       - backend

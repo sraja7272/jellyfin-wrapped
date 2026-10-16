@@ -57,9 +57,11 @@ All endpoints (except auth) support `?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` q
 
 ### Prerequisites
 
-- A Jellyfin server (version 10.8.0 or higher) with Jellyfin's official [Playback Reporting plugin](https://github.com/jellyfin/jellyfin-plugin-playbackreporting) installed
+- A Jellyfin server (version 10.8.0 or higher, including 10.9+ / .NET 8 releases) with Jellyfin's official [Playback Reporting plugin](https://github.com/jellyfin/jellyfin-plugin-playbackreporting) installed
 - Admin access to your Jellyfin server to generate an API key
 - Docker and Docker Compose (for production deployment)
+
+> **Jellyfin 10.9+ compatibility:** The backend authenticates using the standard `Authorization: MediaBrowser ...` header (with `X-Emby-Authorization` / `X-Emby-Token` sent alongside for older servers), so login and Playback Reporting queries work on modern Jellyfin releases.
 
 ### Quick Start with Docker Compose
 
@@ -117,12 +119,14 @@ environment:
   - OIDC_CLIENT_ID=your-client-id
   - OIDC_CLIENT_SECRET=your-client-secret
   - OIDC_REDIRECT_URI=http://your-backend:3001/auth/oidc/callback
-  - FRONTEND_URL=http://your-frontend-url
+  # Optional: where users are sent after login (also added to the CORS allowlist).
+  # If omitted, the first CORS_ORIGINS entry is used, then the origin of OIDC_REDIRECT_URI.
+  # - FRONTEND_URL=http://your-frontend-url
   # Optional: override which claim maps to the Jellyfin username (default: preferred_username)
   # - OIDC_USERNAME_CLAIM=preferred_username
 ```
 
-> **Note:** All five OIDC variables must be set together. If any are missing, the server will exit with a clear error. If none are set, the app uses standard Jellyfin password authentication.
+> **Note:** The four `OIDC_*` variables (`OIDC_ISSUER_URL`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_REDIRECT_URI`) must be set together. If any are missing, the server will exit with a clear error. If none are set, the app uses standard Jellyfin password authentication. `FRONTEND_URL` is optional and is not part of this check.
 
 ## Development
 
@@ -161,23 +165,26 @@ npm run dev
 **Backend:**
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `JELLYFIN_SERVER_URL` | Yes | Your Jellyfin server URL |
+| `JELLYFIN_SERVER_URL` | Yes | Your Jellyfin server URL (can be a LAN address such as `http://10.10.0.2:30013`) |
+| `JELLYFIN_PUBLIC_URL` | No | Publicly reachable Jellyfin URL used by browsers for poster/actor images (defaults to `JELLYFIN_SERVER_URL`) |
 | `JELLYFIN_API_KEY` | Yes | Admin API key |
 | `JWT_SECRET` | Yes | Secret for signing JWT tokens (min 32 characters) |
-| `NODE_ENV` | Recommended | Set to `production` for production deployments. Controls CORS: <br>• **Production**: allows `https://wrapped.raja-house.com` <br>• **Development**: allows `https://wrapped.raja-house.com` + `http://localhost:5173` |
+| `NODE_ENV` | Recommended | Set to `production` for production deployments. Outside production, `http://localhost:5173` (Vite dev server) is added to the CORS allowlist when an allowlist is configured |
+| `CORS_ORIGINS` | Recommended | Comma-separated list of allowed frontend origins (e.g. `https://wrapped.example.com,http://192.168.1.10`). Use `*` to allow any origin. If neither `CORS_ORIGINS` nor `FRONTEND_URL` is set, all origins are allowed |
+| `TRUST_PROXY` | No | Trust `X-Forwarded-For` headers from reverse proxies for rate limiting (default: `true`; set to `false` only if exposed directly without a proxy) |
 | `PORT` | No | Server port (default: 3001) |
 | `HOST` | No | Server host (default: 0.0.0.0) |
 | `OIDC_ISSUER_URL` | For OIDC | OIDC provider issuer URL (e.g., `https://id.example.com`) |
 | `OIDC_CLIENT_ID` | For OIDC | Client ID from your OIDC provider |
 | `OIDC_CLIENT_SECRET` | For OIDC | Client secret from your OIDC provider |
 | `OIDC_REDIRECT_URI` | For OIDC | Callback URL: `http://your-backend:3001/auth/oidc/callback` |
-| `FRONTEND_URL` | For OIDC | URL where the frontend is accessible (for post-login redirect) |
+| `FRONTEND_URL` | No | URL where the frontend is accessible (post-login redirect target; automatically allowed by CORS). Not required for OIDC — falls back to the first `CORS_ORIGINS` entry, then the origin of `OIDC_REDIRECT_URI` |
 | `OIDC_USERNAME_CLAIM` | No | OIDC claim for Jellyfin username matching (default: `preferred_username`) |
 
 **Frontend (Docker/Production):**
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `BACKEND_URL` | Yes | URL where backend is accessible from browser |
+| `BACKEND_URL` | No | URL where backend is accessible from browser. Defaults to `window.location.origin` (the frontend container automatically proxies `/api`, `/auth`, and `/health` to `http://backend:3001`) |
 
 **Frontend (Vite Development):**
 | Variable | Required | Description |
@@ -204,6 +211,15 @@ cd backend
 docker build -t jellyfin-wrapped-backend .
 ```
 
+### Published Images
+
+The [`docker-publish.yml`](.github/workflows/docker-publish.yml) workflow builds and pushes both images to GitHub Container Registry on every push to `main` and on version tags (`v*`), and can be run manually from the Actions tab:
+
+- `ghcr.io/<owner>/<repo>` (frontend)
+- `ghcr.io/<owner>/<repo>-backend` (backend)
+
+Tags: `latest`, the short commit SHA, the branch name, and semver tags (`1.2.3`, `1.2`) for version tags. If you fork the repo, point `docker-compose.yaml` at your own images.
+
 ## Tech Stack
 
 - **Frontend**: React 18, TypeScript, Vite, Radix UI, TailwindCSS, Framer Motion
@@ -222,7 +238,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - All communication should be over HTTPS in production
 - Sessions are stored in memory and cleared on backend restart
 - **Input validation** - All date parameters are validated to prevent SQL injection
-- **CORS protection** - Only allowed origins can access the API (based on `NODE_ENV`)
+- **CORS protection** - Restrict API access to specific frontend origins with `CORS_ORIGINS` / `FRONTEND_URL` (all origins are allowed if neither is set)
 - **OIDC security** - Authorization Code flow with server-side token exchange; client secrets never exposed to the browser; state and nonce parameters prevent CSRF and replay attacks
 - **Strong JWT requirement** - JWT secret must be at least 32 characters
 

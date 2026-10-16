@@ -11,6 +11,7 @@ export interface OidcConfig {
 
 export interface AppConfig {
   jellyfinServerUrl: string;
+  jellyfinPublicUrl: string;
   jellyfinApiKey: string;
   oidc?: OidcConfig;
 }

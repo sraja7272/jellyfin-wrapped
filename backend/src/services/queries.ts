@@ -36,8 +36,8 @@ export async function listMovies(
       COUNT(*) as PlayCount,
       SUM(PlayDuration) as TotalWatchTime
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "Movie"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'Movie'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     GROUP BY ItemId
@@ -101,8 +101,8 @@ export async function listShows(
   const query = `
     SELECT ROWID, *
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "Episode"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'Episode'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     ORDER BY rowid DESC
@@ -179,8 +179,8 @@ export async function listAudio(
   const query = `
     SELECT ROWID, *
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "Audio"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'Audio'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     ORDER BY rowid DESC
@@ -200,8 +200,8 @@ export async function listMusicVideos(
   const query = `
     SELECT ROWID, *
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "MusicVideo"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'MusicVideo'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     ORDER BY rowid DESC
@@ -221,8 +221,8 @@ export async function listLiveTvChannels(
   const query = `
     SELECT ROWID, *
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "TvChannel"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'TvChannel'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     ORDER BY rowid DESC
@@ -255,7 +255,7 @@ export async function getDeviceStats(
   const deviceQuery = `
     SELECT DeviceName as device, COUNT(*) as count
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
+    WHERE UserId = '${config.userId}'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     AND DeviceName IS NOT NULL AND DeviceName != ''
@@ -276,7 +276,7 @@ export async function getDeviceStats(
   const clientQuery = `
     SELECT ClientName as client, COUNT(*) as count
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
+    WHERE UserId = '${config.userId}'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     AND ClientName IS NOT NULL AND ClientName != ''
@@ -337,7 +337,7 @@ export async function getPunchCardData(
       strftime('%H', DateCreated) as hour,
       COUNT(*) as count
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
+    WHERE UserId = '${config.userId}'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     GROUP BY day_of_week, hour
@@ -363,7 +363,7 @@ export async function getCalendarData(config: JellyfinConfig): Promise<CalendarD
       date(DateCreated) as day,
       COUNT(*) as count
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
+    WHERE UserId = '${config.userId}'
     AND DateCreated > date('now', '-1 year')
     GROUP BY date(DateCreated)
     ORDER BY day
@@ -390,8 +390,8 @@ export async function getMonthlyShowStats(
       ItemId,
       SUM(PlayDuration) as TotalPlayDuration
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "Episode"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'Episode'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     GROUP BY Month, ItemId
@@ -495,8 +495,8 @@ export async function getUnfinishedShows(
       ItemName,
       MAX(DateCreated) as LastWatched
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "Episode"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'Episode'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     GROUP BY ItemId
@@ -623,8 +623,8 @@ export async function getWatchedOnDate(
   const movieQuery = `
     SELECT ROWID, *
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "Movie"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'Movie'
     AND DateCreated > '${startDate}'
     AND DateCreated < '${endDate}'
     ORDER BY rowid DESC
@@ -639,8 +639,8 @@ export async function getWatchedOnDate(
   const episodeQuery = `
     SELECT ROWID, *
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND ItemType = "Episode"
+    WHERE UserId = '${config.userId}'
+    AND ItemType = 'Episode'
     AND DateCreated > '${startDate}'
     AND DateCreated < '${endDate}'
     ORDER BY rowid DESC
@@ -670,7 +670,7 @@ export async function getStreakStats(
       date(DateCreated) as day,
       COUNT(*) as count
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
+    WHERE UserId = '${config.userId}'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     GROUP BY date(DateCreated)
@@ -762,7 +762,7 @@ export async function getTimePersonality(
       strftime('%H', DateCreated) as hour,
       COUNT(*) as count
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
+    WHERE UserId = '${config.userId}'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     GROUP BY hour
@@ -924,7 +924,7 @@ export async function getWatchEvolution(
       strftime('%Y-%m', DateCreated) as month,
       SUM(PlayDuration) as totalDuration
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
+    WHERE UserId = '${config.userId}'
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     GROUP BY month
@@ -945,8 +945,8 @@ export async function getWatchEvolution(
       strftime('%Y-%m', DateCreated) as month,
       ItemId
     FROM PlaybackActivity
-    WHERE UserId = "${config.userId}"
-    AND (ItemType = "Movie" OR ItemType = "Episode")
+    WHERE UserId = '${config.userId}'
+    AND (ItemType = 'Movie' OR ItemType = 'Episode')
     AND DateCreated > '${timeframe.startDate}'
     AND DateCreated <= '${timeframe.endDate}'
     ORDER BY month

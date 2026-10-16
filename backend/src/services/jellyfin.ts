@@ -4,9 +4,20 @@ import { SimpleItemDto, PersonDto } from '../types.js';
 
 export interface JellyfinConfig {
   serverUrl: string;
+  publicServerUrl?: string;
   apiKey: string;
   userToken: string;
   userId: string;
+}
+
+// Build auth headers for Jellyfin requests.
+// Modern Jellyfin (10.9+) expects the standard `Authorization: MediaBrowser ...` header;
+// `X-Emby-Token` is kept as a fallback for older servers.
+function buildTokenHeaders(token: string): Record<string, string> {
+  return {
+    'Authorization': `MediaBrowser Client="Jellyfin-Wrapped-Backend", Device="Server", DeviceId="jellyfin-wrapped-backend", Version="1.0.0", Token="${token}"`,
+    'X-Emby-Token': token,
+  };
 }
 
 // Execute SQL query against Playback Reporting plugin
@@ -19,7 +30,7 @@ export async function executeSqlQuery(
     {
       method: 'POST',
       headers: {
-        'X-Emby-Token': config.apiKey,
+        ...buildTokenHeaders(config.apiKey),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -58,9 +69,7 @@ export async function getItemsByIds(
     const response = await fetch(
       `${config.serverUrl}/Users/${config.userId}/Items?ids=${idsParam}&fields=ParentId,People,Genres`,
       {
-        headers: {
-          'X-Emby-Token': config.userToken,
-        },
+        headers: buildTokenHeaders(config.userToken),
       }
     );
 
@@ -84,6 +93,7 @@ export async function getItemsByIds(
       }>;
     };
 
+    const imageBaseUrl = config.publicServerUrl || config.serverUrl;
     const items = (data.Items ?? []).map((item) => ({
       id: item.Id,
       parentId: item.ParentId,
@@ -93,12 +103,12 @@ export async function getItemsByIds(
       productionYear: item.ProductionYear,
       people: item.People?.map((person) => ({
         ...person,
-        imageUrl: person.Id ? `${config.serverUrl}/Items/${person.Id}/Images/Primary?maxWidth=300&quality=90` : null,
+        imageUrl: person.Id ? `${imageBaseUrl}/Items/${person.Id}/Images/Primary?maxWidth=300&quality=90` : null,
       })),
       genres: item.Genres,
       genreItems: item.GenreItems,
       durationSeconds: item.RunTimeTicks ? Math.floor(item.RunTimeTicks / 10000000) : 0,
-      imageUrl: item.Id ? `${config.serverUrl}/Items/${item.Id}/Images/Primary?maxWidth=300&quality=90` : null,
+      imageUrl: item.Id ? `${imageBaseUrl}/Items/${item.Id}/Images/Primary?maxWidth=300&quality=90` : null,
     }));
 
     allItems.push(...items);
@@ -116,7 +126,7 @@ export async function getShowEpisodeStats(
   const allResponse = await fetch(
     `${config.serverUrl}/Users/${config.userId}/Items?parentId=${showId}&includeItemTypes=Episode&recursive=true`,
     {
-      headers: { 'X-Emby-Token': config.userToken },
+      headers: buildTokenHeaders(config.userToken),
     }
   );
 
@@ -130,7 +140,7 @@ export async function getShowEpisodeStats(
   const watchedResponse = await fetch(
     `${config.serverUrl}/Users/${config.userId}/Items?parentId=${showId}&includeItemTypes=Episode&recursive=true&filters=IsPlayed`,
     {
-      headers: { 'X-Emby-Token': config.userToken },
+      headers: buildTokenHeaders(config.userToken),
     }
   );
 
@@ -154,7 +164,7 @@ export async function findJellyfinUserByName(
   username: string
 ): Promise<{ Id: string; Name: string } | null> {
   const response = await fetch(`${serverUrl}/Users`, {
-    headers: { 'X-Emby-Token': apiKey },
+    headers: buildTokenHeaders(apiKey),
   });
 
   if (!response.ok) {

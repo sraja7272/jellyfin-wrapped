@@ -46,6 +46,7 @@ function getConfig(request: FastifyRequest, fastify: FastifyInstance): JellyfinC
   const session = (request as any).session;
   return {
     serverUrl: fastify.config.jellyfinServerUrl,
+    publicServerUrl: fastify.config.jellyfinPublicUrl,
     apiKey: fastify.config.jellyfinApiKey,
     userToken: session.jellyfinToken,
     userId: session.jellyfinUserId,

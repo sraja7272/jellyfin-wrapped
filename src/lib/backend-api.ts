@@ -159,15 +159,19 @@ export const getBackendUrl = (): string => {
   if (typeof window !== "undefined" && "ENV" in window) {
     const env = (window as { ENV?: Record<string, string> }).ENV;
     if (env?.BACKEND_URL) {
-      return env.BACKEND_URL;
+      return env.BACKEND_URL.replace(/\/+$/, "");
     }
   }
   // Fallback to Vite env (development)
-  const url = import.meta.env.VITE_BACKEND_URL || "";
-  if (!url) {
-    console.error("BACKEND_URL is not configured. Set VITE_BACKEND_URL (dev) or BACKEND_URL (production).");
+  const url = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
+  if (url) {
+    return url;
   }
-  return url;
+  // Same-origin fallback when deployed behind a reverse proxy on a single domain
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin;
+  }
+  return "";
 };
 
 // Get stored JWT token
@@ -208,7 +212,7 @@ export const getAuthConfig = async (): Promise<AuthConfig> => {
   }
 };
 
-// Handle OIDC callback — check URL for token or error parameters
+// Handle OIDC callback — check URL fragment (#token=...) and query string for token or error parameters
 // Returns the result of parsing URL params; caller decides what to do next
 export const handleOidcCallback = (): {
   token: boolean;
@@ -216,20 +220,23 @@ export const handleOidcCallback = (): {
   username: string | null;
   claim: string | null;
 } => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-  const error = params.get('error');
-  const username = params.get('username');
-  const claim = params.get('claim');
+  const hashParams = new URLSearchParams(
+    window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash
+  );
+  const queryParams = new URLSearchParams(window.location.search);
+  const token = hashParams.get("token") || queryParams.get("token");
+  const error = queryParams.get("error") || hashParams.get("error");
+  const username = queryParams.get("username") || hashParams.get("username");
+  const claim = queryParams.get("claim") || hashParams.get("claim");
 
   if (token) {
     setJwt(token);
-    window.history.replaceState({}, '', window.location.pathname);
+    window.history.replaceState({}, "", window.location.pathname);
     return { token: true, error: null, username: null, claim: null };
   }
 
   if (error) {
-    window.history.replaceState({}, '', window.location.pathname);
+    window.history.replaceState({}, "", window.location.pathname);
     return { token: false, error, username, claim };
   }
 
